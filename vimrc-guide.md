@@ -8,9 +8,7 @@ date: 2015/08/02
 
 This article is for those who've been using Vim for a little while and have started to grasp modal editing and the powers of Vim, and now want to start customizing it. If you're completely new to Vim, I have another post describing some of the basic of learning Vim [here](/computers/vim-guide) but there are dozens of them on the internet, and Vim ships with `vimtutor` as well which is a great place to start.
 
-If you already have someone else's `vimrc` or are using a distribution like *Janus* or *spf13* then I suggest you delete it. You likely have no idea what it does and it means nothing to you. I'm not going to explain how to use someone else's config, I'm going to attempt to walk you through the process of creating your own, which is much more rewarding, although do keep in my mind I'm really only going to give you my own opinions on the process and attempt to save you from some of the boring legwork of testing things out (which admittedly can also be a rewarding process).
-
-As this is not an introduction to writing VimScript, and targeted at beginners, a lot of this is suggesting plugins. Some people don't like plugins, and want to write their own VimScript to do similar things as existing plugins, or just want to use vanilla Vim. I'm not exactly keen on Vim's defaults (and I imagine neither are you if you're reading this), and I'm not a fan of reinventing the wheel, so I have no problem with using other people's plugins. If you're the type to worry about how many plugins you're using you might as well stop reading now, but keep in mind I currently use over 100 plugins and have yet to be bothered by any significant performance penalties on my modest laptop.
+I'm going to try to walk you through the process of creating your own configuration, by giving you my biased opinions in attempt to save you from some of the boring bits of testing things out (which admittedly can also be a rewarding process).
 
 This is written under the assumption you're running a Linux distro, but much of this will work on Mac, and some of it on Windows too. Your mileage may vary.
 
@@ -18,28 +16,27 @@ This is written under the assumption you're running a Linux distro, but much of 
 
 At this point I'm assuming you have no `~/.vim` directory and no `~/.vimrc` file. Let's make a directory skeleton to use in your `vimrc` later with this command:
 
-``` bash
+```bash
 mkdir -vp ~/.vim/{autoload,bundle,cache,undo,backups,swaps}
 ```
 
 Then, let's install a plugin manager called [vim-plug](https://github.com/junegunn/vim-plug/) with this command:
 
-``` bash
+```bash
 curl -fLo ~/.vim/autoload/plug.vim https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 ```
 
-<small>*(Aside: There are definitely many choices of plugin managers, but to me, vim-plug is the best of them; the syntax is very clean and it does parallel processing which makes updates so much faster than others. The other biggest contender would be [NeoBundle](https://github.com/Shougo/neobundle.vim) which offers more fine-grained control, but I find the extra control is rarely needed, and vim-plug will do just about all of that anyway and with cleaner syntax. There's also [Vundle](https://github.com/gmarik/Vundle.vim) but it doesn't have delayed loading of plugins which is a really great feature not to be missed out on.)*</small>
+<small>_(Aside: There are definitely many choices of plugin managers, but to me, vim-plug is the best of them; the syntax is very clean and it does parallel processing which makes updates so much faster than others. The other biggest contender would be [NeoBundle](https://github.com/Shougo/neobundle.vim) which offers more fine-grained control, but I find the extra control is rarely needed, and vim-plug will do just about all of that anyway and with cleaner syntax. There's also [Vundle](https://github.com/gmarik/Vundle.vim) but it doesn't have delayed loading of plugins which is a really great feature not to be missed out on.)_</small>
 
 Now, open your `~/.vimrc` with Vim, and let's use Vim-plug to install a minimal, [sensible](https://github.com/tpope/vim-sensible), set of default options by adding the following lines:
 
-``` vim
+```vim
 call plug#begin('~/.vim/bundle')
 Plug 'tpope/vim-sensible'
-Plug 'shougo/vimproc', {'do': 'make'}
 call plug#end()
 ```
 
-There's an extra plugin there called [vimproc](https://github.com/shougo/vimproc) that you'll want to let Vim do things asynchronously, or non-blocking-ly, so that things can run in the background without making Vim freeze. The second half of that tells Vim-plug to run the command `make` whenever it's installed or updated.
+There's an extra plugin there called [vimproc](https://github.com/shougo/vimproc) that you'll want to let Vim do things asynchronously. The second half of that tells Vim-plug to run the command `make` whenever it's installed or updated.
 
 Now let's save this file and install the plugin with this command: `:w | so % | PlugInstall`. You're hopefully familiar with `:ex` commands like `:w`, `:q`, and `:s` but you may not be aware you can chain them together with `|`. This is equivalent to running `:w`, then `:so %` which is a shortcut for `:source <current filename>`, and then running `:PlugInstall`. At this point I would recommend taking a [look at the options](https://github.com/tpope/vim-sensible/blob/master/plugin/sensible.vim) Vim-sensible defines.
 
@@ -49,7 +46,7 @@ As you're working/reading through this article, try to add comments to help you 
 
 Vim's default nature when handling buffers is to not allow opening a new one or changing to a new buffer without saving change to the current one. Anyone who's spent any time in another editor will likely find this incredibly annoying (at least I do), and want Vim to just remember their changes for the moment and focus on a new buffer without prompting to save first. This line will do that:
 
-``` vim
+```vim
 set hidden
 ```
 
@@ -59,9 +56,9 @@ I might have said this earlier, but any options you add to your `vimrc` are not 
 
 ---
 
-I quite like having line numbers in a text editor, and in recent versions there's also *relative* line numbering which is great to have in Vim, since you're most often moving around relative to your position rather than to an absolute line (which, of course, can still be done). The following lines will add line numbers and relative line numbers (or not if you're using a version that doesn't support it):
+I quite like having line numbers in a text editor, and in recent versions there's also _relative_ line numbering which is great to have in Vim, since you're most often moving around relative to your position rather than to an absolute line (which, of course, can still be done). The following lines will add line numbers and relative line numbers (or not if you're using a version that doesn't support it):
 
-``` vim
+```vim
 set number
 if exists('+rnu') | set relativenumber | endif
 ```
@@ -72,7 +69,7 @@ If you prefer, you can split that into multiple lines where the `|` bars are.
 
 I'm going to suggest yet plugin (did I mention this article will be filled with lots of them?) from Tim Pope called [unimpaired](https://github.com/tpope/vim-unimpaired) that adds a bunch of keybinds that, I think, should be added by default.
 
-``` vim
+```vim
 Plug 'tpope/vim-unimpaired'
 ```
 
@@ -82,7 +79,7 @@ With this plugin you can now toggle line numbers with `con` and relative numbers
 
 tpope has another great plugin that I use a lot that proves Vim commands for some common UNIX commands. As an example, I often decide I want to rename or move a file in the middle of working on it, and while `:saveas` almost does the trick, it still leaves the original file on disk, and (Eunuch)[https://github.com/tpope/vim-eunuch] provides a :Move command to solve this problem. As another example, I sometimes start editing a file, and find that I need root privileges to write to it, and this plugin provides `:SudoWrite`.
 
-``` vim
+```vim
 Plug 'tpope/vim-eunuch'
 ```
 
@@ -90,7 +87,7 @@ Plug 'tpope/vim-eunuch'
 
 Another one of tpope's great plugins is [surround](https://github.com/tpope/vim-surround). This "provides mappings to easily delete, change and add such surroundings in pairs." The README and help file does a great job of explaining how to use it so I won't bother with that here.
 
-``` vim
+```vim
 Plug 'tpope/vim-surround'
 ```
 
@@ -98,15 +95,15 @@ Plug 'tpope/vim-surround'
 
 Before I forget, and while I'm still talking about tpope, there's yet another plugin he's written that expands on the power of the `.` command which repeats the last action. `.` doesn't always work with plugins, so this plugin attempts to fix that.
 
-``` vim
+```vim
 Plug 'tpope/vim-repeat'
 ```
 
 ---
 
-Vim has a very powerful [undo *tree*](http://vimcasts.org/episodes/undo-branching-and-gundo-Vim/), which is different from the linear undo lists most editors use. Having this tree be persistent even after quitting is one of my favorite features of Vim, and so is having your `:ex` command history be persistent. The following lines will accomplish this:
+Vim has a very powerful [undo _tree_](http://vimcasts.org/episodes/undo-branching-and-gundo-Vim/), which is different from the linear undo lists most editors use. Having this tree be persistent even after quitting is one of my favorite features of Vim, and so is having your `:ex` command history be persistent. The following lines will accomplish this:
 
-``` vim
+```vim
 if version >= 703
     if exists("&undodir")
         set undodir=~/.vim/undo//
@@ -125,13 +122,13 @@ endif
 
 There's also a plugin called [gundo](https://github.com/sjl/gundo.vim) that I recommend adding to graphically navigate the undo tree. Vim-plug also has the ability to not load this plugin until you actually use it, although most of the time this isn't necessary because Vim natively has on-demand loading of plugins if they're written correctly.
 
-``` vim
+```vim
 Plug 'sjl/gundo.vim', {'on': 'GundoToggle'}
 ```
 
 If you want to bind opening this to a key, you can do that with
 
-``` vim
+```vim
 nnoremap <silent> <F5> <Esc>:GundoToggle<CR>
 ```
 
@@ -147,7 +144,7 @@ Vim-sensible enables `incsearch` which highlights the first match as you type, w
 
 A note on organization: Your `vimrc` can quickly become a jumbled mess if you're not careful, so I find it helps to group things into folds. For instance, in my `vimrc`, I use several settings for this plugin, so directly underneath the plugin definition I add the settings and then wrap the whole block in a fold. This lets me use `zc` to close the fold (which hides the contents), and then `zo` to open it (or `zm`/`zr` to increase/decrease the `foldlevel`). The entire block looks like so:
 
-``` vim
+```vim
 Plug 'haya14busa/incsearch.vim' " {{{
   map /  <Plug>(incsearch-forward)
   map ?  <Plug>(incsearch-backward)
@@ -166,7 +163,7 @@ Plug 'haya14busa/incsearch.vim' " {{{
 
 I also use incsearch in conjunction with [vim-over](https://github.com/osyo-manga/vim-over) for live preview of substitutions:
 
-``` vim
+```vim
 Plug 'osyo-manga/vim-over' " {{{
   let g:over_command_line_prompt = ":"
   let g:over_enable_cmd_window = 1
@@ -183,7 +180,7 @@ One of my new favorite plugins is [vim-sneak](https://github.com/justinmk/vim-sn
 
 The settings I use for this are:
 
-``` vim
+```vim
 Plug 'justinmk/vim-sneak' " {{{
   let g:sneak#prompt = '(sneak)» '
   map <silent> f <Plug>Sneak_f
@@ -205,7 +202,7 @@ Since text-objects are arguably Vim's most compelling feature, why not take adva
 
 Determining whether a file is using tabs or spaces consistently isn't easily done, but Vim has a few features for handling non-visible chars. You'll want to check the help files for more information.
 
-``` vim
+```vim
 set list listchars=tab:\›\ ,trail:★,extends:»,precedes:«,nbsp:•
 "" set listchars+=eol:↵  "" uncomment this line if you want to show end of line chars
 set fillchars=stl:\ ,stlnc:\ ,vert:│,fold:\ ,diff:-
@@ -217,7 +214,7 @@ As far as looks go in Vim, compared to more modern editors, it's not exactly the
 
 If that's too fancy for you, you can play with the `ruler`, which by default only shows the current line number and column, but you can put many things in the ruler:
 
-``` vim
+```vim
 set rulerformat=%30(%=\:b%n%y%m%r%w\ %l,%c%V\ %P%)
 ```
 
@@ -235,33 +232,33 @@ Next, I recommend using snippets. Snippets are shortcuts allow you to, for insta
 
 When it comes to code-completion, while Vim's built-in completion is pretty great, it does leave something to be desired if you're looking for something that intelligently parses your code. There are at least half a dozen choices, and some of them have drawbacks compared to others, so you'll really want to spend a little time playing with each and see which you prefer most. I've narrowed it down to two:
 
-* [YouCompleteMe](https://github.com/valloric/youcompleteme) - Perhaps the most popular, this is really good at completion for C-languages and also works for Python and has support for a few other languages. It's pretty kind of complicated to install and depends on `clang`.
-* [NeoComplete](https://github.com/shougo/neocomplete) - This is the one I use, mostly because I don't work with C-languages and it seems to function how I'd expect, but it depends on Vim's Lua support (which you can test by looking for `+lua` in `vim --version`). [NeoComplCache](https://github.com/Shougo/neocomplcache.vim) is similar but doesn't have the same dependencies nor quite the same feature set. There's a newer version of NeoComplete called [Deoplete](https://github.com/shougo/deoplete.vim) that Shougo is working on for NeoVim and the new async features of Vim 8; as of this writing it's not 100% finished, but it's worth trying.
+- [YouCompleteMe](https://github.com/valloric/youcompleteme) - Perhaps the most popular, this is really good at completion for C-languages and also works for Python and has support for a few other languages. It's pretty kind of complicated to install and depends on `clang`.
+- [NeoComplete](https://github.com/shougo/neocomplete) - This is the one I use, mostly because I don't work with C-languages and it seems to function how I'd expect, but it depends on Vim's Lua support (which you can test by looking for `+lua` in `vim --version`). [NeoComplCache](https://github.com/Shougo/neocomplcache.vim) is similar but doesn't have the same dependencies nor quite the same feature set. There's a newer version of NeoComplete called [Deoplete](https://github.com/shougo/deoplete.vim) that Shougo is working on for NeoVim and the new async features of Vim 8; as of this writing it's not 100% finished, but it's worth trying.
 
 It's also possible to use YouCompleteMe if `clang` is available, or attempt NeoComplete if it can, and fall-back to NeoComplCache if all else fails, so I wrote a [gist](https://gist.github.com/DanielFGray/f6d7671ec08f7f95f879) for this idea (though I never actually tested it, so let me know how it works if you try it).
 
-If you do web development then you'll most definitely want [emmett.vim](https://github.com/mattn/emmet-Vim) which is more of a text *expander*: it lets you write CSS-style selections and then expands them in to the markup it requires. For example `ul>li*2` expands to `<ul><li></li><li></li></ul>` (but with linebreaks and indention). Emmet is completely life-changing for writing HTML/XML/JSX. [Here's a cheat-sheet](http://docs.emmet.io/cheat-sheet/) to help you get started with some of the expansions it provides.
+If you do web development then you'll most definitely want [emmett.vim](https://github.com/mattn/emmet-Vim) which is more of a text _expander_: it lets you write CSS-style selections and then expands them in to the markup it requires. For example `ul>li*2` expands to `<ul><li></li><li></li></ul>` (but with linebreaks and indention). Emmet is completely life-changing for writing HTML/XML/JSX. [Here's a cheat-sheet](http://docs.emmet.io/cheat-sheet/) to help you get started with some of the expansions it provides.
 
 ---
 
 A few more goodies for you:
 
-* [delimitMate](https://github.com/Raimondi/delimitMate) - this will add matching parenthesis, quotes, braces, brackets as soon as you type the first one. I cry whenever I use Vim and this isn't available.
-* [endwise](https://github.com/tpope/vim-endwise) - provides a few closing lines for things like `if`, `for`, `function`, etc in several languages
-* [commentary](https://github.com/tpope/vim-commentary) - provides a `gc` verb for commenting lines with motions or selections
-* [fugitive](https://github.com/tpope/vim-fugitive) - another one of tpope's great contributions, it may very well be the best Git wrapper of all time
-* [git-gutter](https://github.com/airblade/vim-gitgutter) - a handy companion to fugitive that shows diff signs from the current commit beside line numbers
-* [gist](https://github.com/mattn/gist-Vim) - speaking of Git, it's often really handy to send a file or just a selection of a file to gist to share with people. This plugin does that very nicely
-* [filebeagle](https://github.com/jeetsukumaran/vim-filebeagle) - if you've come from IDE-land you may be tempted to try and find some sort of file browser for Vim. NERDtree is one of the more popular choices for this, but it uses splits which can be disruptive to your other splits, and personally just does too much. I've been using filebeagle which does two things: lists and opens files.
+- [delimitMate](https://github.com/Raimondi/delimitMate) - this will add matching parenthesis, quotes, braces, brackets as soon as you type the first one. I cry whenever I use Vim and this isn't available.
+- [endwise](https://github.com/tpope/vim-endwise) - provides a few closing lines for things like `if`, `for`, `function`, etc in several languages
+- [commentary](https://github.com/tpope/vim-commentary) - provides a `gc` verb for commenting lines with motions or selections
+- [fugitive](https://github.com/tpope/vim-fugitive) - another one of tpope's great contributions, it may very well be the best Git wrapper of all time
+- [git-gutter](https://github.com/airblade/vim-gitgutter) - a handy companion to fugitive that shows diff signs from the current commit beside line numbers
+- [gist](https://github.com/mattn/gist-Vim) - speaking of Git, it's often really handy to send a file or just a selection of a file to gist to share with people. This plugin does that very nicely
+- [filebeagle](https://github.com/jeetsukumaran/vim-filebeagle) - if you've come from IDE-land you may be tempted to try and find some sort of file browser for Vim. NERDtree is one of the more popular choices for this, but it uses splits which can be disruptive to your other splits, and personally just does too much. I've been using filebeagle which does two things: lists and opens files.
 
 # Prose plugins
 
 If you're into writing prose there are a few plugins I've found that help with this:
 
-* [vim-pencil](https://github.com/reedes/vim-pencil) - provides commands for changing word wrap settings between hard and soft style
-* [vim-lexical](https://github.com/reedes/vim-lexical) - improves spell-check and adds thesaurus completions
-* [vim-textobj-sentence](https://github.com/reedes/vim-textobj-sentence) - improves the built-in sentence text-object with recognition for common abbreviations and quotations
-* [vim-wordy](https://github.com/reedes/vim-wordy) - highlights problematic phrases and words
+- [vim-pencil](https://github.com/reedes/vim-pencil) - provides commands for changing word wrap settings between hard and soft style
+- [vim-lexical](https://github.com/reedes/vim-lexical) - improves spell-check and adds thesaurus completions
+- [vim-textobj-sentence](https://github.com/reedes/vim-textobj-sentence) - improves the built-in sentence text-object with recognition for common abbreviations and quotations
+- [vim-wordy](https://github.com/reedes/vim-wordy) - highlights problematic phrases and words
 
 # Even more plugins
 
@@ -284,7 +281,7 @@ If you use tmux you might want some integration with it and REPLs in other panes
 
 If you have a lot of `<leader>` key mappings, you'll probably find that the default `\` key can be a bit hard to reach. Well, the space bar doesn't really do much besides advance the cursor one char, just like `l` does, so I think it's a great candidate for being `mapleader` since it's so easily accessible.
 
-``` vim
+```vim
 let g:mapleader = "\<Space>"
 ```
 
@@ -292,7 +289,7 @@ let g:mapleader = "\<Space>"
 
 The default behavior of `Y` is to yank the entire line (which can be done with `yy`), but I like `Y` to behave more like `C` and `D`, which work from the cursor to the end of the line.
 
-``` vim
+```vim
 nnoremap Y y$
 ```
 
@@ -300,18 +297,18 @@ nnoremap Y y$
 
 When searching with `n` and `N` I often find it difficult to see exactly where the next search was, so I use `zt` to put that line at the top of the scrolling area (or `zz` to center the line). Sometimes the search is inside a fold that I have to open with `zv` to see it. At some point I realized I do this so often that I should really just make it my default behavior:
 
-``` vim
+```vim
 nnoremap n nzvzt
 nnoremap N Nzvzt
 ```
 
-<small>*note that if you're using the [incsearch](https://github.com/haya14busa/incsearch) plugin to handle all of your searching you'll have to add the `zvzt` to the end of that plug mapping*</small>
+<small>_note that if you're using the [incsearch](https://github.com/haya14busa/incsearch) plugin to handle all of your searching you'll have to add the `zvzt` to the end of that plug mapping_</small>
 
 ---
 
 If you've used Vim with wrapped text, you may have noticed that `j` and `k` don't quite behave as expected, as they jump literal lines and not visible lines, which is done with `gj` and `gk`. I thought it would be handy to have a function to swap them around as needed, so here it is:
 
-``` vim
+```vim
 function! Togglegjgk()
   if !exists("g:togglegjgk") || g:togglegjgk==0
     let g:togglegjgk=1
@@ -336,7 +333,7 @@ nnoremap <silent> <leader>tgj <Esc>:call Togglegjgk()<CR>
 
 Early in the text I mentioned `autocmd`, which is a very powerful feature in Vim. They do have some caveats to be aware of, and the syntax is slightly strange at first, so check out `:h autocmd`. Any time your `vimrc` is re-sourced Vim will re-add your autocmds to it's list, so it's good to wrap them in either an `augroup` to clear them, or a condition to not re-load them (I opt for the former). Here's a quick sample of how to `:source` your `vimrc` whenever it's saved, and, if you're using Airline, fix a strange quirk it has when re-sourcing:
 
-``` vim
+```vim
 augroup VIM
   autocmd!
   autocmd BufWritePost ~/.vimrc
@@ -349,7 +346,7 @@ augroup END
 
 Because help files are so helpful in Vim, I find myself reading them a lot (and hopefully you have been too), but by default most of the help splits are horizontal (which makes no sense to me), so I have a couple `autocmd`s for dealing with them. The first is to try and make all help splits vertical on the far right side and resized to 80 columns, and the other uses the `:help <C-r><C-w>` trick we used earlier and binds it to `K`, which by default runs `man` on the word your cursor is in. Again, this would go inside the `augroup` above:
 
-``` vim
+```vim
 autocmd FileType help
 \ wincmd L |
 \ vert resize 80
@@ -359,7 +356,7 @@ autocmd FileType Vim
 
 You can also use an `autocmd` to load your last known cursor position whenever a file is read. Put this inside the block above.
 
-``` vim
+```vim
 autocmd BufReadPost *
 \ if line("'\"") > 0 && line("'\"") <= line("$") |
 \   exe 'normal! g`"zvzz' |
@@ -368,9 +365,9 @@ autocmd BufReadPost *
 
 ---
 
-If you want your Vim config to be more portable, it's possible to use your `.vimrc` to recreate your whole `~/.vim` directory. This block will create missing directories and install Vim-Plug and the rest of your missing plugins: *(works best at the top of the file)*
+If you want your Vim config to be more portable, it's possible to use your `.vimrc` to recreate your whole `~/.vim` directory. This block will create missing directories and install Vim-Plug and the rest of your missing plugins: _(works best at the top of the file)_
 
-``` vim
+```vim
 let s:configdir = '~/.vim'
 if has('nvim')
   let s:configdir = '~/.config/nvim'
@@ -399,7 +396,7 @@ endif
 
 Closing windows can be done a few different ways in Vim. `:q` will close the window and exit Vim if it's the only window open, `:bd` will delete the current buffer from memory but it will leave the window showing. `<C-w>q` will close the window but it won't remove the buffer, and that's without bringing tabs into it. That's a lot of thinking for a simple task, and keystroke or two more than I care for. [Sayonara](https://github.com/mhinz/vim-sayonara) is a plugin that attempts to simplify this process with two commands: `:Sayonara` which removes the buffer and closes the window, and `:Sayonara!` (with the exclamation!) which removes the buffer but preserves the window. That's a lot more typing, so it needs a key-binding. The `Q` key starts you in `:ex` mode which is more often used on accident, and you can still get to this by typing `gQ` in normal mode, so I wrote this little function to override it and close buffers by typing `QY`, `Qy`, or `Qc`:
 
-``` vim
+```vim
 function! PromptQuit()
   echo 'Y - kill buffer and current window'
   echo 'y - kill buffer but preserve window'
@@ -434,8 +431,8 @@ You may even want to look into [xcape](https://github.com/alols/xcape), which ca
 
 this is still a work in progress
 
-* more cool Vim tricks
-* further reading
-  * [my vimrc](https://gitlab.com/DanielFGray/dotfiles/blob/master/vimrc)
-  * [Steve Losh - Learn VimScript the Hard Way](http://learnvimscriptthehardway.stevelosh.com/)
-  * [IBM DevWorks - Scripting the Vim editor](http://www.ibm.com/developerworks/library/l-vim-script-1/)
+- more cool Vim tricks
+- further reading
+  - [my vimrc](https://gitlab.com/DanielFGray/dotfiles/blob/master/vimrc)
+  - [Steve Losh - Learn VimScript the Hard Way](http://learnvimscriptthehardway.stevelosh.com/)
+  - [IBM DevWorks - Scripting the Vim editor](http://www.ibm.com/developerworks/library/l-vim-script-1/)

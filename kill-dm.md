@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Killing the Display Manager"
+title: 'Killing the Display Manager'
 category: computers
 tags: [linux, fzf]
 date: 2016/09/29
@@ -14,7 +14,7 @@ Display managers are usually a fancy graphical wrapper around a few basic comman
 
 My `xinitrc` is a bit complex, but here it is:
 
-``` bash
+```bash
 #!/usr/bin/env bash
 
 # arguments passed to startx start at $2 for some reason..
@@ -25,7 +25,7 @@ declare wm="${2:-xterm}"
 is_running() {
   pgrep -x "$1" &> /dev/null
 }
- 
+
 # this will run immediately
 xrdb -load ~/.Xresources
 
@@ -37,20 +37,20 @@ while sleep 0.3; do
     break
   fi
 done &
- 
+
 # Arch Linux users need the following
 if [[ -d /etc/X11/xinit/xinitrc.d ]]; then
   for f in /etc/X11/xinit/xinitrc.d/*; do
     [[ -x "$f" ]] && source "$f"
   done
 fi
- 
+
 exec "$wm"
 ```
 
 With this script, running `startx` will launch xterm, and you can use xterm to run any window manager you want, and switch window managers without actually restarting the X session. You can also pass arguments to `startx`: for example, if you wanted to start XFCE you would use `startx startxfce4` or if you wanted to launch Openbox: `startx openbox-session`.
 
-It's important to note that the last line of the script *must* be `exec <what you want to launch X with>`, and that anything before it will block until it's finished, potentially leaving the script running indefinitely. If you wanted to launch another program automatically (for example [redshift](http://jonls.dk/redshift/)), make sure it goes inside the `while...if` loop, and that it has an `&` after it (like the Firefox example) so that it runs in the background. In the above example I didn't add an `&` to the end of the `xrdb` or `xmodmap` commands since they usually finish running in milliseconds, and forking them to the background would be an unnecessary subshell. Basically any long-running processes, or commands that take a non-trivial amount of time to run, should be forked to the background with `&`.
+It's important to note that the last line of the script _must_ be `exec <what you want to launch X with>`, and that anything before it will block until it's finished, potentially leaving the script running indefinitely. If you wanted to launch another program automatically (for example [redshift](http://jonls.dk/redshift/)), make sure it goes inside the `while...if` loop, and that it has an `&` after it (like the Firefox example) so that it runs in the background. In the above example I didn't add an `&` to the end of the `xrdb` or `xmodmap` commands since they usually finish running in milliseconds, and forking them to the background would be an unnecessary subshell. Basically any long-running processes, or commands that take a non-trivial amount of time to run, should be forked to the background with `&`.
 
 ---
 
@@ -60,7 +60,7 @@ Now that you have an xinitrc script, you can disable your display manager. I can
 
 Running `startx` after login every time is pretty annoying though. Wouldn't it be nice if we could automatically run `startx` when we login?
 
-``` bash
+```bash
 if [[ -z "$DISPLAY" && "$TTY" = '/dev/tty1' ]]; then
   exec startx startxfce4
 fi
@@ -74,7 +74,7 @@ If you use bash you'll want to save this as `~/.bash_login`, or if you use zsh y
 
 If you have a few window managers or desktop environments installed, you'll probably want to be able change between them without editing a script. I hacked together a solution that uses Junegunn's [fzf](https://github.com/junegunn/fzf) to list and choose those that are available. If `fzf` isn't installed or available for some reason it falls back to bash's built in `select` feature. You'll want to change your `bash_login` or `zlogin` script to something like this:
 
-``` bash
+```bash
 if [[ -z "$DISPLAY" && "$TTY" = '/dev/tty1' ]]; then
   exec startx "$(wmpicker)"
 fi
@@ -82,7 +82,7 @@ fi
 
 Then, in a new file, save this somewhere in your user's `$PATH` (ideally `~/.bin` or `~/.local/bin`) and `chmod +x` to make it executable. If you don't have a local-user bin directory I'd strongly suggest making one (the details are a bit out of the scope of this article, you'll have to consult your shell's docs), but if you're lazy you could save it in `/usr/local/bin`, just don't forget to `chmod +x`.
 
-``` bash
+```bash
 #!/usr/bin/env bash
 
 declare -a known_wms
@@ -104,12 +104,12 @@ else
   done
 fi
 ```
- 
+
 This has a hard-coded list, so if yours isn't in there you'll want to add it to the list of `known_wms`.
 
 If you prefer [fzy](https://github.com/jhawthorn/fzy) or [selecta](https://github.com/garybernhardt/selecta) or even just plain `dialog` you could change it to use that, but I'll leave that as a exercise for the reader :)
 
-# systemd auto-login 
+# systemd auto-login
 
 Some display manager's include a feature to automatically log you in, but you can do that without a display manager on systemd.
 

@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Learning Vim"
+title: 'Learning Vim'
 category: computers
 tags: [vim, unfinished]
 date: 2017/2/2
@@ -8,7 +8,7 @@ date: 2017/2/2
 
 A brief (and somewhat complete) history: In the beginning, the UNIX standard editor was `ed`, created by Ken Thompson in 1969. `ed` is a very powerful, very terse, command line interface for editing text, but user-friendliness is not one of it's strengths. In 1976 Bill Joy came along on his [ADM-3A](https://en.wikipedia.org/wiki/ADM-3A) and extended `ed` to become `ex`, and then a couple years later made a visual interface and called it `vi`. Later on, around 1988, Bram Moolenar took `Vi` and improved it with a lot more features, and around 1991 released it and called it `Vim`.
 
-Vi (and hence Vim) is unlike most any other editor. Vim is *modal*. That means things you do in one "mode" will have a different effect than what happens in another mode. Almost every other editor will let you start typing text as soon as you open it. If you do that in Vim there's no telling what will happen.
+Vi (and hence Vim) is unlike most any other editor. Vim is _modal_. That means things you do in one "mode" will have a different effect than what happens in another mode. Almost every other editor will let you start typing text as soon as you open it. If you do that in Vim there's no telling what will happen.
 
 # Basics
 
@@ -54,7 +54,7 @@ I think now is a good time to introduce another mode: `visual` mode. You can sta
 
 There are, of course, many text-objects besides words. How about a sentence? We can navigate forward a sentence with `)` and backwards a sentence with `(`. Unfortunately the syntax for selecting a sentence as a text-object differs slightly here, `vis` would select the sentence, because if we were to run `vi)` it would look for a group of parentheses. That's pretty key there, because I just introduced another text-object: groups of parentheses. You can visually select inside groups of `()` by using either `vi)` or `vi(` (they're both the same to Vim), and to take this one step further, you select things inside curly braces with `vi}`. What's that? You want to select the curly braces as well as their contents? Well let's visually select around them, with `va}`. We can take this inside/around idea to nearly any text-object. If we `vaW` it will select a `WORD` and also a whitespace character around the word. If we do `vas` it will also include a whitespace character around the sentence.
 
-Visual selections aren't just limited to text objects though, you can use any motion. If you wanted to select from the cursor to the next occurrence of a comma, you could use `vf,` and then use the `;` to jump to more commas. Visual mode started with `v` puts you in a character select mode, so you can select as much text as you want by moving the cursor with any motion. You can also select by lines by using `V`, and you can even make rectangular selections with `^v` (that's control+v), which is something I haven't seen in any other editor. 
+Visual selections aren't just limited to text objects though, you can use any motion. If you wanted to select from the cursor to the next occurrence of a comma, you could use `vf,` and then use the `;` to jump to more commas. Visual mode started with `v` puts you in a character select mode, so you can select as much text as you want by moving the cursor with any motion. You can also select by lines by using `V`, and you can even make rectangular selections with `^v` (that's control+v), which is something I haven't seen in any other editor.
 
 # Operators
 
@@ -80,7 +80,7 @@ I'd like to demonstrate a couple of different ways to edit and insert text while
 
 Press `i` to start insert mode, and type the following:
 
-``` vim
+```vim
 set backspace=indent,eol,start " make backspace a bit more sane
 ```
 
@@ -90,19 +90,19 @@ You should now have two lines of the same thing.
 Type `2G` then `w` to jump to the second word of the second line where it declares the `backspace` option, then type `cE` to change the backspace setting to `showmode`, then `Esc` back to normal mode.  
 Use `f"` then `w` to navigate to the start of the comment, and then use `C` to change the rest of the line so it looks like below:
 
-``` vim
+```vim
 set showcmd " show operator/motion commands as they're typed
 ```
 
 Now press `o` to start insert mode in a new line below the current one type the following:
 
-``` vim
+```vim
 set hidden " allow buffers to persist in the background without saving
 ```
 
 And try and follow roughly the same pattern as above for this next line:
 
-``` vim
+```vim
 set ruler " show a ruler with line numbers at the bottom
 ```
 
@@ -113,8 +113,9 @@ Save this (with `:w`), and then tell Vim to execute this with `:so %`.
 Home work: what do `D` and `C` do, and how do they differ from `Y`?
 
 ### TODO:
-* ex commands like `:s` and `:g`
-* block selection with insert/append
-* Registers
-  * Unnamed register, where yanked, deleted, and changed text go.
-* Macros
+
+- ex commands like `:s` and `:g`
+- block selection with insert/append
+- Registers
+  - Unnamed register, where yanked, deleted, and changed text go.
+- Macros

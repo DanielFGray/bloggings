@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Fuzzy searching for MPD in Bash"
+title: 'Fuzzy searching for MPD in Bash'
 category: computers
 tags: [programming, linux, bash, mpd, fzf]
 date: 2014/11/02
@@ -10,11 +10,11 @@ I recently came across [fzf](https://github.com/junegunn/fzf), which is an inter
 
 Realizing it was a generic filter, and not just for files, I wondered what else I could fuzzy search through, and, being a musician, I felt that filtering through my music library would be handy.
 
-`mpc` is a CLI interface to mpd, and after reading through the [man page](http://man.cx/mpc(1)), I find that `mpc listall` will display a list of every song in the mpd database (although later on I learned it's actually bad practice). So immediately I ran `mpc listall | fzf`, which worked as I expected. Only, `fzf` just prints the selection to stdout, it doesn't have any side-effects besides printing to stdout. So after reading the man page some more and tinkering around, I learn that `mpc add` will take files from stdin and add them to the bottom of the playlist.
+`mpc` is a CLI interface to mpd, and after reading through the [man page](<http://man.cx/mpc(1)>), I find that `mpc listall` will display a list of every song in the mpd database (although later on I learned it's actually bad practice). So immediately I ran `mpc listall | fzf`, which worked as I expected. Only, `fzf` just prints the selection to stdout, it doesn't have any side-effects besides printing to stdout. So after reading the man page some more and tinkering around, I learn that `mpc add` will take files from stdin and add them to the bottom of the playlist.
 
 So `mpc listall | fzf | mpc add` will list all available files in the mpd database, fuzzy filter through them, then add to the bottom of the playlist. Unfortunately, that still doesn't actually play the added song, and `mpc play` will only play whatever song is currently selected in the queue, rather than the new song. In the end I found that `mpc play` accepts an integer as an index from the playlist. So, if `mpc add` puts them at the bottom, I need to know how many songs are in the playlist, which I can achieve with `mpc playlist | wc -l` (`wc` is wordcount, the `-l` switch counts lines). At this point my code is better suited to a script rather than a one-liner like:
 
-``` bash
+```bash
 mpc listall | fzf | mpc add && mpc play $(mpc playlist | wc -l)
 ```
 
@@ -28,7 +28,7 @@ Using the array, I want to pass each element as a string separated by a newline 
 
 So, putting it all together I came up with this:
 
-``` bash
+```bash
 mapfile -t songs < <(mpc search -f '[%artist% - [%album% - ][%track% - ][%title%]]|%file%' filename '' | fzf -m)
 (( ${#songs[@]} > 0 )) || exit
 printf '%s\n' "${songs[@]}" | mpc -q add

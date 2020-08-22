@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Functional Programming: a small introduction"
+title: 'Functional Programming: a small introduction'
 category: computers
 tags: [programming, javascript, fp]
 date: 2017/1/10
@@ -16,7 +16,7 @@ Imagine you have an array of numbers, and you want to sum them.
 
 The common imperative approach is usually something like this:
 
-``` javascript
+```javascript
 var ints = [1, 2, 3, 4]
 var sum = 0
 for (var i = 0; i < count(ints); i++) {
@@ -27,7 +27,7 @@ sum // -> 10
 
 Functional programming offers an alternative approach:
 
-``` javascript highlight=2,9
+```javascript highlight=2,9
 function add(a, b) {
   return a + b
 }
@@ -43,7 +43,7 @@ I think about reduce as a way to join many values into a single value, it takes 
 
 A simple implementation of `reduce()` might be something like this:
 
-``` javascript highlight=4
+```javascript highlight=4
 function reduce(func, initial, arr) {
   let state = initial
   for (let i = 0, l = arr.length; i < l; ++i) {
@@ -53,12 +53,12 @@ function reduce(func, initial, arr) {
 }
 ```
 
-* At the beginning of the function, `state` is initialized as a copy of the `initial` argument.
-* Every iteration, `state` is re-assigned with the value of calling `func(state, arr[i])`. This *calls* the given variable as a function.
-* When it calls the function given to it, it sends the previous value of `state` (or the initial value if it's the first iteration), and the current element in the array, as arguments to the given `func` so they may be accessed inside the given function when it's called.
-* Then finally, the last `state` is returned.
+- At the beginning of the function, `state` is initialized as a copy of the `initial` argument.
+- Every iteration, `state` is re-assigned with the value of calling `func(state, arr[i])`. This _calls_ the given variable as a function.
+- When it calls the function given to it, it sends the previous value of `state` (or the initial value if it's the first iteration), and the current element in the array, as arguments to the given `func` so they may be accessed inside the given function when it's called.
+- Then finally, the last `state` is returned.
 
-A function that takes another function as an argument (or returns another function) is a called a *higher-order function*. `reduce` is a higher-order function that "folds" multiple of values into a single value.
+A function that takes another function as an argument (or returns another function) is a called a _higher-order function_. `reduce` is a higher-order function that "folds" multiple of values into a single value.
 
 ---
 
@@ -67,7 +67,7 @@ A function that takes another function as an argument (or returns another functi
 [eloquent]: http://eloquentjavascript.net/
 [exercise]: http://eloquentjavascript.net/04_data.html
 
-``` javascript
+```javascript
 [1, 2, 3]
 
 // becomes
@@ -86,11 +86,14 @@ A function that takes another function as an argument (or returns another functi
 
 There are a number of ways to solve this, but here is my approach:
 
-``` javascript
-[1, 2, 3].reduceRight((prev, current) => ({
-  value: current,
-  rest: prev,
-}), null)
+```javascript
+;[1, 2, 3].reduceRight(
+  (prev, current) => ({
+    value: current,
+    rest: prev,
+  }),
+  null,
+)
 ```
 
 `reduceRight` is the same as reduce except it starts at the end of the array, and works backwards.
@@ -99,13 +102,13 @@ There are a number of ways to solve this, but here is my approach:
 
 Even though JavaScript is weakly typed, analyzing the type signatures of functions can still yield valuable information about how a function works.
 
-The type of functions used in *reducers* is `a b -> a`, that is, a function that takes two arguments and returns a value that's the same type as the first argument.  
+The type of functions used in _reducers_ is `a b -> a`, that is, a function that takes two arguments and returns a value that's the same type as the first argument.  
 `reduce` is a function with the signature `(b a -> b) b [a] -> b`: it accepts a reducer function, a thing `b`, a list `a`, and returns a thing the same type of `b`.
 
-I should note that these are *imperative* solutions, *recursive* solutions are more typical in functional approaches.
+I should note that these are _imperative_ solutions, _recursive_ solutions are more typical in functional approaches.
 
-``` javascript
-function reduce (fn, i, l) {
+```javascript
+function reduce(fn, i, l) {
   if (l.length === 0) return i
   return reduce(fn, fn(i, l[0]), l.slice(1))
 }
@@ -119,10 +122,10 @@ What if you wanted to transform each element? Maybe you have an array of numbers
 
 The imperative approach might be something like:
 
-``` javascript
+```javascript
 var ints = [1, 2, 3, 4]
 var squared = []
-for(var i = 0, length = ints.length; i < length; ++i) {
+for (var i = 0, length = ints.length; i < length; ++i) {
   squared.push(ints[i] * ints[i])
 }
 ints // -> [1, 4, 9, 16]
@@ -130,12 +133,12 @@ ints // -> [1, 4, 9, 16]
 
 In functional programming, when you want to iterate over a set and transform it, you would use `map`.
 
-``` javascript
+```javascript
 function square(n) {
   return n * n
 }
 
-[1, 2, 3, 4].map(square) // -> [1, 4, 9, 16]
+;[1, 2, 3, 4].map(square) // -> [1, 4, 9, 16]
 ```
 
 This is much tidier, in my opinion. When you see that big messy `for` loop, you have no idea what's going on until you fully read the whole thing and attempt to mentally parse it. When you see `map`, without reading anything but that word, you immediately know that you are creating a new array with all of the values changed by a given function.
@@ -148,7 +151,7 @@ This is much tidier, in my opinion. When you see that big messy `for` loop, you 
 
 You could implement `map` like the following:
 
-``` javascript
+```javascript
 function map(func, arr) {
   var state = []
   for (var i = 0, l = arr.length; i < l; ++i) {
@@ -162,19 +165,23 @@ It follows much the same pattern as the `reduce` function. In fact, they're almo
 
 If you recall, `reduce` always returns a single value. Well, an array, although it contains many items, is itself a single value. What if you give `reduce` an empty array as the initial value, and add to that array instead?
 
-``` javascript
+```javascript
 var ints = [1, 2, 3, 4]
-reduce(function(previous, current) {
-  previous.push(current * current)
-  return previous
-}, [], ints) // -> [1, 4, 9, 16]
+reduce(
+  function (previous, current) {
+    previous.push(current * current)
+    return previous
+  },
+  [],
+  ints,
+) // -> [1, 4, 9, 16]
 ```
 
 It works just as expected!
 
 In fact, you can implement `map` as a wrapper around reduce:
 
-``` javascript
+```javascript
 const map = (fn, arr) => {
   return reduce((prev, curr) => {
     prev.push([fn(curr)])
@@ -192,9 +199,8 @@ const map = (fn, a) =>
 
 If your map function returns another array, you can even "un-nest" or flatten the arrays into a single array:
 
-``` javascript
-const flatMap = (fn, a) =>
-  reduce((p, c) => p.concat(c), [], a)
+```javascript
+const flatMap = (fn, a) => reduce((p, c) => p.concat(c), [], a)
 ```
 
 # Filter
@@ -203,7 +209,7 @@ Filtering a list of values is another useful task to be done with an array.
 
 We can implement a `filter` function that iterates over the whole list, and returns a new list of values that only match a given function:
 
-``` javascript
+```javascript
 const filter = (fn, a) =>
   reduce((p, c) => (
       fn(c)
@@ -219,7 +225,7 @@ partition(isEven, [1, 2, 3, 4]) // -> [2, 4]
 
 A slight twist on filter, this splits an array into two arrays whether they match a predicate function:
 
-``` javascript
+```javascript
 const partition = (fn, a) =>
   reduce(([t, f], c) => (
     fn(c)
@@ -236,14 +242,17 @@ I'm of the opinion unless you need to `break` or `continue` inside a loop, most 
 
 If you know that map operates on a function and an array, and you see the following, which one takes you longer to read and understand what it does?
 
-``` javascript
-const items = [{
-  foo: 'a',
-  bar: 1,
-}, {
-  foo: 'b',
-  bar: 2,
-}]
+```javascript
+const items = [
+  {
+    foo: 'a',
+    bar: 1,
+  },
+  {
+    foo: 'b',
+    bar: 2,
+  },
+]
 
 // functional
 const newList = items.map(e => e.foo)
@@ -255,21 +264,20 @@ for (let i = 0; i < items.length; i++) {
 }
 ```
 
-
 There are optimizations that could be performed in the imperative approach, and those types of optimizations are not the kind I like working on. Using `reduce` I can abstract away the details of iterating over an array with much less typing, and move the optimizations to a single point.
 
 # Helper functions
 
 That example above, taking an array of objects and retrieving the value of a particular properties from each one, is a common enough pattern that I'd like to make a special function for it:
 
-``` javascript
+```javascript
 const prop = a => b => b[a]
 items.map(prop('foo'))
 ```
 
 I can take this another step further and make a function specifically for retrieving values from an array of objects:
 
-``` javascript
+```javascript
 const pluck = (a, b) => b.map(prop(a))
 pluck('foo', items)
 ```

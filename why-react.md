@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Why Use React?"
+title: 'Why Use React?'
 category: computers
 tags: [react, javascript, programming]
 date: 2017/4/17
@@ -12,20 +12,20 @@ Introductions are hard, so I'm just gonna jump right into this.
 
 Here's an example from the Vue.js getting started [guide](http://vuejs.org/v2/guide/):
 
-``` javascript
+```javascript
 var app4 = new Vue({
   el: '#app-4',
   data: {
     todos: [
       { text: 'Learn JavaScript' },
       { text: 'Learn Vue' },
-      { text: 'Build something awesome' }
-    ]
-  }
+      { text: 'Build something awesome' },
+    ],
+  },
 })
 ```
 
-``` html
+```html
 <div id="app-4">
   <ol>
     <li v-for="todo in todos">
@@ -39,21 +39,20 @@ If you're familiar with JavaScript, the first chunk shouldn't be too hard to gro
 
 This is how I would do the same thing done in React:
 
-``` javascript
+```javascript
 const data = [
   { text: 'Learn JavaScript' },
   { text: 'Learn React' },
-  { text: 'Build something awesome' }
+  { text: 'Build something awesome' },
 ]
 
-const TodoList = props =>
+const TodoList = props => (
   <ol>
     {props.todos.map(todo => (
-      <li>
-        {todo.text}
-      </li>
+      <li>{todo.text}</li>
     ))}
   </ol>
+)
 
 ReactDOM.render(<TodoList todos={data} />, document.querySelector('#app'))
 ```
@@ -64,8 +63,8 @@ It introduces markup directly into the JavaScript file, but uses JavaScript's ex
 
 I think this shows the two fundamental differences between the two approaches:
 
-* Vue and Angular try to shim logic into markup.
-* React tries to shim markup into logic.
+- Vue and Angular try to shim logic into markup.
+- React tries to shim markup into logic.
 
 Both of these approaches create a [DSL](https://en.wikipedia.org/wiki/Domain-specific_language).
 
@@ -77,15 +76,15 @@ I think introducing logic into HTML is fixing the wrong part, I don't need magic
 
 JSX is the biggest deviation from regular JavaScript that React introduces, it's similar to XML/HTML, but not quite same. The difference between JSX and the normal HTML you'd write can be summed up pretty quickly:
 
-  * attributes that are hyphenated must be converted to camelCase (ie `tab-index` becomes `tabIndex`)
-  * JavaScript keywords must be re-named (ie `class="foo bar"` becomes `className="foo bar"`)
-  * all tags must have a closing tag or be self closing (ie `<div></div>` or `<div />`)
-  * you can embed arbitrary JavaScript expressions (to be distinguished from plain text) inside your markup by wrapping them in curly braces
+- attributes that are hyphenated must be converted to camelCase (ie `tab-index` becomes `tabIndex`)
+- JavaScript keywords must be re-named (ie `class="foo bar"` becomes `className="foo bar"`)
+- all tags must have a closing tag or be self closing (ie `<div></div>` or `<div />`)
+- you can embed arbitrary JavaScript expressions (to be distinguished from plain text) inside your markup by wrapping them in curly braces
 
 And it's optional. JSX is just syntax sugar for a function that looks like:
 
-``` javascript
-React.createElement('div', { ...attributes }, [ ...children ])
+```javascript
+React.createElement('div', { ...attributes }, [...children])
 ```
 
 Typical React components are just regular functions that return React elements. Arguments are called "props", and are read-only.

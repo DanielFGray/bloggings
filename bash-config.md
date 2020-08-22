@@ -1,14 +1,14 @@
 ---
 layout: post
-title: "Parsing Bash Config Files"
+title: 'Parsing Bash Config Files'
 category: computers
-tags: [linux,bash,programming]
-date:  2017/2/21
+tags: [linux, bash, programming]
+date: 2017/2/21
 ---
 
 Many times a script is written that needs extra/persistent configuration from the user. In most languages this is no big deal, you just import your json/yaml/toml parser and you're good to go. The common thing to do for many bash scripts that require configuration is to ask the user to put another actual bash script containing variable declarations in the file:
 
-``` bash
+```bash
 # config
 foo='bar baz'
 
@@ -21,7 +21,7 @@ echo "$foo"  # prints 'bar baz'
 
 But this is horrible to me. This doesn't just define variables, this evaluates code! Ideally, a configuration file should be parsed, not evaluated. For a few scripts I've written lately, I've been including a function that parses plain-text in the following format:
 
-``` bash
+```bash
 somekey     some value
 anotherkey  some value
 anotherkey  another value
@@ -30,7 +30,7 @@ anotherkey  another value
 
 Here's how I parse config files:
 
-``` bash
+```bash
 #!/usr/bin/env bash
 
 declare -r config_dir="${XDG_CONFIG_DIR:-$HOME/.config}/my_script"

@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "How I Made My Own Static-Site Generator"
+title: 'How I Made My Own Static-Site Generator'
 category: computers
 tags: [programming, javascript, frp, nodejs]
 date: 2017/06/18
@@ -19,10 +19,11 @@ I played around with a few different methods for this, and in the end settled on
 
 [globby]: https://github.com/sindresorhus/globby
 
-``` javascript
+```javascript
 const globby = require('globby')
-globby(`${__dirname}/content/**/*.md`, { absolute: true })
-  .then(console.log)
+globby(`${__dirname}/content/**/*.md`, {
+  absolute: true,
+}).then(console.log)
 ```
 
 This searches recursively from the content dir and finds all files ending in `.md`. Perfect.
@@ -33,27 +34,30 @@ At this point, I realized [RxJS][rxjs] would be a great fit for all of this, as 
 
 [rxjs]: http://reactivex.io/rxjs/
 
-``` javascript
+```javascript
 const globby = require('globby')
 const Rx = require('rxjs')
 
 const contentDir = `${__dirname}/content`
 
-const glob = globby(`${contentDir}/**/*.md`, { absolute: true })
+const glob = globby(`${contentDir}/**/*.md`, {
+  absolute: true,
+})
 
-Rx.Observable.from(glob)
-  .subscribe(console.log)
+Rx.Observable.from(glob).subscribe(console.log)
 ```
 
 This has the same effect as the Promise version, but, if we add an additional method, we can "flatten" the array so that instead of a single array in the stream, each array value would be an event in the stream:
 
-``` javascript
+```javascript
 const globby = require('globby')
 const Rx = require('rxjs')
 
 const contentDir = `${__dirname}/content`
 
-const glob = globby(`${contentDir}/**/*.md`, { absolute: true })
+const glob = globby(`${contentDir}/**/*.md`, {
+  absolute: true,
+})
 
 Rx.Observable.from(glob)
   .flatMap(x => x)
@@ -66,7 +70,7 @@ Hopefully this illustrates that Observables can return multiple values, as oppos
 
 Let's try and actually read each file. I find the default callback nature of the `fs` module in node.js slightly awkward to use, and RxJS provides a convenient way to create Observables from functions that use callbacks.
 
-``` javascript
+```javascript
 const fs = require('fs')
 const globby = require('globby')
 const Rx = require('rxjs')
@@ -74,17 +78,19 @@ const Rx = require('rxjs')
 const contentDir = `${__dirname}/content`
 
 const readFile = Rx.Observable.bindNodeCallback(fs.readFile)
-const glob = globby(`${contentDir}/**/*.md`, { absolute: true })
+const glob = globby(`${contentDir}/**/*.md`, {
+  absolute: true,
+})
 
 Rx.Observable.from(glob)
   .flatMap(x => x)
   .flatMap(x => readFile(x))
   .subscribe(console.log)
-``` 
+```
 
 The `flatMap` method will "unwrap" the `readFile` Observable and merge it into the stream. The default behavior of `fs.readFile` is to return a `Buffer` object rather than a string. Fortunately this is easily fixed:
 
-``` javascript
+```javascript
 // ...
 Rx.Observable.from(glob)
   .flatMap(x => x)
@@ -95,11 +101,11 @@ Rx.Observable.from(glob)
 
 There's a fair amount going on here in a few lines so let's re-cap:
 
-* An Observable is created based on the Promise returned from `globby`
-* `globby` returns an array of paths, and the array is flattened so that each item in the array becomes an item in the Observable's stream
-* Each path in the stream is passed to `readFile` which returns a `Buffer`
-* Each `Buffer` is converted to a string
-* Each file is printed with `console.log`
+- An Observable is created based on the Promise returned from `globby`
+- `globby` returns an array of paths, and the array is flattened so that each item in the array becomes an item in the Observable's stream
+- Each path in the stream is passed to `readFile` which returns a `Buffer`
+- Each `Buffer` is converted to a string
+- Each file is printed with `console.log`
 
 I should probably point out that an Observable can be initialized, but doesn't perform any actions until it is `subscribe`d to. Much like Promises can be initialized, but do not resolve until `.then()` is called on it.
 
@@ -111,7 +117,7 @@ My markdown files contain front matter, and so I started looking for a library t
 
 Throwing this into our stream looks like
 
-``` javascript
+```javascript
 const fs = require('fs')
 const globby = require('globby')
 const Rx = require('rxjs')
@@ -121,7 +127,9 @@ const matter = require('gray-matter')
 const contentDir = `${__dirname}/content`
 
 const readFile = Rx.Observable.bindNodeCallback(fs.readFile)
-const glob = globby(`${contentDir}/**/*.md`, { absolute: true })
+const glob = globby(`${contentDir}/**/*.md`, {
+  absolute: true,
+})
 
 Rx.Observable.from(glob)
   .flatMap(x => x)
@@ -135,7 +143,7 @@ But I wasn't entirely happy with the output here as it splits the front matter a
 
 Which lets me create a new object containing just the data and content keys:
 
-``` javascript
+```javascript
 Rx.Observable.from(glob)
   .flatMap(x => x)
   .flatMap(x => readFile(x))
@@ -147,18 +155,20 @@ Rx.Observable.from(glob)
 
 I also wanted to convert the date key in my front matter into a UNIX timestamp, and add the filename into the object so that it would be easy to determine the name of the file to `writeFile` to later. At this point I realized that the filename data was lost at this point in the stream, and I had to re-think the pattern I was using. I eventually solved both of these problems with the following:
 
-``` javascript
+```javascript
 Rx.Observable.from(glob)
   .flatMap(x => x)
-  .flatMap(file => readFile(file)
-    .map(x => x.toString())
-    .map(x => matter(x))
-    .map(({ data, content }) => ({
-      ...data, 
-      file: file.replace(new RegExp(`^${contentDir}(.*).md$`), '$1'),
-      content,
-      date: (new Date(data.date)).getTime(),
-    })))
+  .flatMap(file =>
+    readFile(file)
+      .map(x => x.toString())
+      .map(x => matter(x))
+      .map(({ data, content }) => ({
+        ...data,
+        file: file.replace(new RegExp(`^${contentDir}(.*).md$`), '$1'),
+        content,
+        date: new Date(data.date).getTime(),
+      })),
+  )
   .subscribe(console.log)
 ```
 
@@ -166,11 +176,11 @@ It's mostly the same, only an Observable is created inside the stream, which `fl
 
 # Generating HTML
 
-At this point it becomes pretty trivial to parse the markdown into actual html. [marked][marked] has been my favorite choice for this, and adding it into the mix looks like this: 
+At this point it becomes pretty trivial to parse the markdown into actual html. [marked][marked] has been my favorite choice for this, and adding it into the mix looks like this:
 
 [marked]: https://github.com/chjj/marked
 
-``` javascript
+```javascript
 const fs = require('fs')
 const globby = require('globby')
 const Rx = require('rxjs')
@@ -180,20 +190,24 @@ const marked = require('marked')
 
 const contentDir = `${__dirname}/content`
 
-const glob = globby(`${contentDir}/**/*.md`, { absolute: true })
+const glob = globby(`${contentDir}/**/*.md`, {
+  absolute: true,
+})
 const readFile = Rx.Observable.bindNodeCallback(fs.readFile)
 
 Rx.Observable.from(glob)
   .flatMap(x => x)
-  .flatMap(file => readFile(file)
-    .map(x => x.toString())
-    .map(x => matter(x))
-    .map(({ data, content }) => ({
-      ...data, 
-      file: file.replace(new RegExp(`^${contentDir}(.*).md$`), '$1'),
-      content: marked(content),
-      date: (new Date(data.date)).getTime(),
-    })))
+  .flatMap(file =>
+    readFile(file)
+      .map(x => x.toString())
+      .map(x => matter(x))
+      .map(({ data, content }) => ({
+        ...data,
+        file: file.replace(new RegExp(`^${contentDir}(.*).md$`), '$1'),
+        content: marked(content),
+        date: new Date(data.date).getTime(),
+      })),
+  )
   .subscribe(console.log)
 ```
 
@@ -203,17 +217,17 @@ This has 90% of the functionality I wanted, all that is left is writing each ite
 
 I'm going to skim over the details, but this takes an object containing a `file` key, and writeFiles to a directory called `public` and maintains the same path that the file came from. So if a file was in `content/posts/foo.md` it will be written to `public/posts/foo.json`.
 
-``` javascript
+```javascript
 const mkdir = Rx.Observable.bindNodeCallback(mkdirp)
 const readFile = Rx.Observable.bindNodeCallback(fs.readFile)
 const writeFile = Rx.Observable.bindNodeCallback(fs.write)
-const write = (object) => {
+const write = object => {
   const filePieces = x.file.split('/').filter(p => p.length > 0)
   const outputDir = path.resolve(__dirname, config.outputDir)
   const filePath = path.join(outputDir, ...filePieces)
   const [_, outBase, basename] = Array.from(filePath.match(/^(.+)\/([^/]+)$/))
   const fileName = path.join(outBase, basename).concat('.json')
-  const output = JSON.stringify(({ ...x, file: basename }))
+  const output = JSON.stringify({ ...x, file: basename })
   return mkdir(outBase)
     .flatMap(() => writeFile(`${fileName}`, output))
     .map(() => `${fileName.replace(__dirname, '.')} written`)
@@ -224,7 +238,7 @@ I'm also using [mkdirp][mkdirp] (and converting it to an Observable) to create d
 
 [mkdirp]: https://github.com/substack/node-mkdirp
 
-``` javascript
+```javascript
 const fs = require('fs')
 const globby = require('globby')
 const Rx = require('rxjs')
@@ -235,12 +249,14 @@ const mkdirp = require('mkdirp')
 
 const contentDir = `${__dirname}/content`
 
-const glob = globby(`${contentDir}/**/*.md`, { absolute: true })
+const glob = globby(`${contentDir}/**/*.md`, {
+  absolute: true,
+})
 const readFile = Rx.Observable.bindNodeCallback(fs.readFile)
 const mkdir = Rx.Observable.bindNodeCallback(mkdirp)
 const writeFile = Rx.Observable.bindNodeCallback(fs.write)
 
-const write = (object) => {
+const write = object => {
   const filePieces = x.file.split('/').filter(p => p.length > 0)
   const outputDir = path.resolve(__dirname, config.outputDir)
   const filePath = path.join(outputDir, ...filePieces)
@@ -254,20 +270,22 @@ const write = (object) => {
 
 Rx.Observable.from(glob)
   .flatMap(x => x)
-  .flatMap(file => readFile(file)
-    .map(x => x.toString())
-    .map(x => matter(x))
-    .map(({ data, content }) => ({
-      ...data,
-      file: file.replace(new RegExp(`^${contentDir}(.*).md$`), '$1'),
-      content: marked(content),
-      date: (new Date(data.date)).getTime(),
-    })))
+  .flatMap(file =>
+    readFile(file)
+      .map(x => x.toString())
+      .map(x => matter(x))
+      .map(({ data, content }) => ({
+        ...data,
+        file: file.replace(new RegExp(`^${contentDir}(.*).md$`), '$1'),
+        content: marked(content),
+        date: new Date(data.date).getTime(),
+      })),
+  )
   .flatMap(write)
   .subscribe(console.log)
 ```
 
-This *works*, but I still wasn't happy. There were two key features I still wanted: an `index.json` that contained all the metadata of each post and a small excerpt, and syntax highlighting.
+This _works_, but I still wasn't happy. There were two key features I still wanted: an `index.json` that contained all the metadata of each post and a small excerpt, and syntax highlighting.
 
 # Excerpts
 
@@ -275,22 +293,24 @@ Creating a 'meta-file' turned out to be pretty easy. I found [cheerio][cheerio] 
 
 [cheerio]: https://cheerio.js.org/
 
-``` javascript
+```javascript
 const cheerio = require('cheerio')
 
 // ...
 
 const file$ = Rx.Observable.from(glob)
   .flatMap(x => x)
-  .flatMap(file => readFile(file)
-    .map(x => x.toString())
-    .map(x => matter(x))
-    .map(({ data, content }) => ({
-      ...data,
-      file: file.replace(new RegExp(`^${contentDir}(.*).md$`), '$1'),
-      content: marked(content),
-      date: (new Date(data.date)).getTime(),
-    })))
+  .flatMap(file =>
+    readFile(file)
+      .map(x => x.toString())
+      .map(x => matter(x))
+      .map(({ data, content }) => ({
+        ...data,
+        file: file.replace(new RegExp(`^${contentDir}(.*).md$`), '$1'),
+        content: marked(content),
+        date: new Date(data.date).getTime(),
+      })),
+  )
 
 const index$ = file$
   .map(x => ({
@@ -301,9 +321,7 @@ const index$ = file$
   .reduce((p, c) => p.concat(c), [])
   .map(x => ({ content: x, file: 'index' }))
 
-Rx.Observable.merge(file$, index$)
-  .flatMap(write)
-  .subscribe(console.log)
+Rx.Observable.merge(file$, index$).flatMap(write).subscribe(console.log)
 ```
 
 # Syntax highlighting
@@ -312,7 +330,7 @@ Syntax highlighting turned out to be a bigger pain than I thought. I tried a few
 
 [prism]: http://prismjs.com/
 
-``` javascript
+```javascript
 const prism = require('prismjs')
 // ...
 
@@ -321,8 +339,8 @@ const has = (obj, key) => Object.prototype.hasOwnProperty.call(obj, key)
 const renderer = new marked.Renderer()
 renderer.code = function renderCode(code, lang) {
   const c = this.options.highlight(code, lang)
-  if (! lang) return `<pre><code>${c}</code></pre>`
-  if (! has(lang, prism.languages)) {
+  if (!lang) return `<pre><code>${c}</code></pre>`
+  if (!has(lang, prism.languages)) {
     const component = `node_modules/prismjs/components/prism-${lang}.min.js`.split('/')
     if (fs.statSync(path.join(__dirname, ...component))) {
       require(component)
@@ -340,7 +358,7 @@ marked.setOptions({
   langPrefix: 'language-',
   renderer,
   highlight: (code, lang) => {
-    if (! has(lang, prism.languages)) {
+    if (!has(lang, prism.languages)) {
       lang = prism.languages[lang] || 'markup'
     }
     return prism.highlight(code, prism.languages[lang])

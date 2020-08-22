@@ -1,8 +1,8 @@
 ---
 layout: post
-title: "Backporting packages in Debian"
+title: 'Backporting packages in Debian'
 category: computers
-tags: [debian,linux]
+tags: [debian, linux]
 date: 2013/10/22
 ---
 
@@ -34,7 +34,7 @@ And there you have it!
 
 The tl;dr version of this (once your have source packages added to your repos) is to:
 
-``` bash
+```bash
 apt-cache showsrc <package>
 sudo apt-get build-dep <package>
 apt-get source -b <package>=<version>

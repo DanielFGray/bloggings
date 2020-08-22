@@ -12,7 +12,7 @@ An explanation of currying and partial application using JavaScript
 
 Let's start with a simple function that takes two numbers and adds them together:
 
-``` javascript
+```javascript
 const add = function (a, b) {
   return a + b
 }
@@ -21,9 +21,9 @@ add(1, 2) //-> 3
 
 Now, instead of a single function that takes two arguments and returns a value, I'm going to rewrite this so that `add` is a function that takes a single argument, and returns another function which accepts a single argument, and then returns the sum of both arguments:
 
-``` javascript
+```javascript
 const add = function (a) {
-  return function(b) { 
+  return function (b) {
     return a + b
   }
 }
@@ -32,24 +32,24 @@ add(1)(2) //-> 3
 
 To make this a bit tidier, the same can be written with fat arrow functions:
 
-``` javascript
+```javascript
 const add = a => b => a + b
 add(1)(2) //-> 3
 ```
 
-Taking a function that accepts multiple values, and transforming it to a 'stream' of functions that each only accept a single argument is called *currying*.
+Taking a function that accepts multiple values, and transforming it to a 'stream' of functions that each only accept a single argument is called _currying_.
 
 ---
 
 Writing functions in this style is a bit tedious though. We can write a higher-order function `curry` that will take a function that accepts multiple arguments, and return a curried version of that function:
 
-``` javascript
+```javascript
 const curry = func => {
   return function curried(...args) {
     if (args.length >= func.length) {
       return func.apply(this, args)
     } else {
-      return function(...args2) {
+      return function (...args2) {
         return curried.apply(this, args.concat(args2))
       }
     }
@@ -59,7 +59,7 @@ const curry = func => {
 
 Now instead of manually nesting our `add` function we can simply:
 
-``` javascript
+```javascript
 const add = curry((a, b) => a + b)
 add(1) //-> [Function]
 add(1, 2) //-> 3
@@ -69,25 +69,25 @@ add(1, 2) //-> 3
 
 Why go through all this trouble? Well, imagine you want to write another function that increments a number by one:
 
-``` javascript
+```javascript
 const inc = n => 1 + n
 inc(2) //-> 3
 ```
 
 This would work, but it's very similar to the `add` function we already wrote. Using the curried version of `add` above, writing an `inc` function becomes as simple as:
 
-``` javascript
+```javascript
 const inc = add(1)
 inc(2) //-> 3
 ```
 
-Taking a curried function and supplying less arguments than it expects is called *partial application*. 
+Taking a curried function and supplying less arguments than it expects is called _partial application_.
 
 ---
 
 In [a previous post](../fp-intro) I talked about re-implementing `reduce`. Here's that `reduce` function, but wrapped with `curry`:
 
-``` javascript
+```javascript
 const reduce = curry((fn, init, arr) => {
   let response = init
   for (let i = 0, l = arr.length; i < l; ++i) {
@@ -110,11 +110,11 @@ These are fairly boring things to curry, so I'll share a fun example of currying
 
 I wanted to write a script that would send multiple requests to different sites, pulling in data from a lot of places, possibly sending muliple requests to each site, and all of the requests needed to have API keys with each call.
 
-There are tons of libraries that handle making requests but none of them have a curried version. Here's a thin wrapper around *[SuperAgent][superagent]*
+There are tons of libraries that handle making requests but none of them have a curried version. Here's a thin wrapper around _[SuperAgent][superagent]_
 
 [superagent]: https://visionmedia.github.io/superagent
 
-``` javascript
+```javascript
 const prop = curry((key, o) => o[key])
 const request = curry((base, header, method, endpoint, data = {}) => {
   return Promise.try(() => prop(method, {
