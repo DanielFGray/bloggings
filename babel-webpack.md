@@ -1,32 +1,31 @@
 ---
 layout: post
-title: "Getting started with Babel and Webpack"
+title: 'Setting Up A Modern Webdev Toolchain'
 category: computers
-tags: [javascript,nodejs,babel,webpack]
+tags: [nodejs, javascript, typescript, react, babel, webpack, eslint, stylelint, postcss]
 date: 2018-06-06
+updated: 2020-08-13
 ---
 
-You've heard about them, maybe you don't know why you'd use them, maybe you just want to know how to get started with them. Read on!
+Modern JavaScript tooling can be a bit of a maze. Babel, Webpack, eslint, TypeScript, PostCSS... Maybe you've heard about them, maybe you don't know why you'd use them, maybe you just want to know how to get started with them. Read on!
+
+> This guide has seen a few revisions, originally it only covered babel and webpack, I've since expanded it to include more tools
 
 # Why?
 
-Imagine you have written some JavaScript code, and you want to depend on some external library, like jQuery or React. You can use separate `<script>` tags in your HTML page but this results in two separate requests, which is slower than one, and becomes unwieldy if/when you need more dependencies.
+We often want to make use of other JavaScript code in our own, and organize our code into separate files. Webpack helps **bundle** all of your code into a single minified file, as well as help split into into different chunks you can dynamically load at runtime.
 
-*Enter Webpack, stage left*
+Imagine you also want to write your JavaScript using ES2015 or newer syntax, but want to support older browsers or other runtimes that may not have it. [Babel](https://babeljs.io) is built for this, it is a tool specifically designed to translate various forms of JavaScript.
 
-Webpack bundles your dependencies into a single file (it also has options for splitting them into separate "chunks"). It takes a file (it calls it an entry point), looks for your dependencies that use calls to `require`, and recursively scans those files for more dependencies, and gives you a bundle.
-
-Imagine you also want to write your JavaScript using ES2015 (aka ES6) or newer syntax, but want to support older browsers that may not have it.
-
-*Enter Babel, stage right*
-
-Together these tools can help simplify your workflow while giving you a lot of power over how to manage your code.
+These tools, and a few others, can help simplify your workflow while giving you a lot of power over how to manage your code.
 
 # How?
 
+## Zero-config Webpack
+
 Let's create a project, and install Webpack and for the sake of example use jquery as a dependency.
 
-``` bash
+```bash
 mkdir first-bundle
 cd first-bundle
 npm init -y
@@ -36,49 +35,54 @@ npm i -S jquery
 
 Create a simple file at `src/index.js`
 
-``` javascript
+```javascript file=src/index.js
 // src/index.js
 const $ = require('jquery')
 
 $('body').prepend('<h1>hello world</h1>')
 ```
 
-Now use Webpack to compile it, and check the output
+Now let's use Webpack to compile it, and check the output:
 
-``` bash
-npx webpack --mode development
+```bash
+npx webpack -d # -d is a shorthand for a few different development flags
+ls dist
 less dist/main.js
 ```
 
-> if `npx webpack` is not available, use `./node_modules/.bin/webpack`
+- if `npx webpack` is not available, ensure you installed the `webpack-cli` package, try `./node_modules/.bin/webpack`, or upgrade to a newer version of `node`.
 
-Note the difference when using production mode
+Note the difference when using production mode:
 
-``` bash
-npx webpack --mode production
+```bash
+npx webpack -p # -p is a shorthand for a few different production flags
 less dist/main.js
 ```
 
-Now let's add babel into this mix
+Webpack starts with it's given entrypoint[s], and looks for any `import` or `require` tokens that point to other files or packages, and then recursively works through those files to build up a dependency tree it calls a manifest
 
-``` bash
-npm i -D @babel/core @babel/preset-env babel-loader
+These two commands alone can be very helpful on their own, and the Webpack cli has many options to alter it's behavior, you can read them with `npx webpack --help` or on [their website](https://webpack.js.org/api/cli/).
+
+## Babel
+
+Now let's add Babel into the mix!
+
+```bash
+npm i -D @babel/{core,preset-env} babel-loader
 ```
 
-A small config for babel
+A small config for Babel:
 
-``` json
+```javascript file=babel.config.js
 // babel.config.js
 module.exports = {
-  plugins: [
-    '@babel/preset-env',
-  ],
+  presets: ['@babel/preset-env'],
 }
 ```
 
-And now we need to make a small webpack config and tell it to use babel 
+And now we need to make a small Webpack configuration to tell Webpack how to use Babel:
 
-``` javascript
+```javascript file=webpack.config.js
 // webpack.config.js
 module.exports = {
   module: {
@@ -95,7 +99,7 @@ module.exports = {
 
 Now let's make a new smaller test case just to test Babel
 
-``` javascript
+```javascript file=src/index.js
 // src/index.js
 const test = () => console.log('hello world')
 test()
@@ -103,156 +107,558 @@ test()
 
 And build it one more time and check the output
 
-``` bash
-npx webpack --mode production
+```bash
+npx webpack -p
 less dist/main.js
 ```
 
 Note that Webpack has a small overhead in the bundle size, just under 1KB.
 
-# Level Up
+---
 
-Since the webpack config is a regular javascript file, we're not limited to cramming everything into a single object, we can move things around and extract pieces into variables:
+Since the Webpack config is a regular JavaScript file, we're not limited to cramming everything into a single object, we can move things around and extract pieces into variables:
 
-``` javascript
+```javascript file=webpack.config.js
 // webpack.config.js
-const rules = [
-  {
-    test: /\.js$/,
-    exclude: /node_modules/,
-    use: 'babel-loader',
-  },
-]
+const babel = {
+  test: /\.js$/,
+  exclude: /node_modules/,
+  use: 'babel-loader',
+}
 
 module.exports = {
   module: {
-    rules,
+    rules: [babel],
   },
 }
 ```
 
-Webpack uses a default "entry point" of `src/index.js`, which we can override: 
+Webpack uses a default input file, or "entry point", of `src/index.js`, which we can override:
 
-``` javascript
+```diff file=webpack.config.js
 // webpack.config.js
-
-/* [...] */
-
-const entry = { main: 'src/app.js' }
-module.exports = {
-  entry,
-  module: {
-    rules,
-  },
-}
+ module.exports = {
++  entry: { main: './src/app.js' },
+   module: {
+     rules: [babel],
+   },
+ }
 ```
 
-Changing the output path is slightly more complicated:
+Changing the output path isn't much different:
 
-``` javascript
+```diff file=webpack.config.js
 // webpack.config.js
-const path = require('path')
-
-/* [...] */
-
-const entry = { main: 'src/app.js' }
-module.exports = {
-  entry,
-  output: {
-    filename: '[name].bundle.js', // file will now be called main.bundle.js
-    path: path.resolve(__dirname, 'public'), // changes the output directory to public
-  },
-  module: {
-    rules,
-  },
-}
++const path = require('path')
+ // ...
+ module.exports = {
+   entry: { main: './src/app.js' },
++  output: {
++    path: path.resolve(__dirname, 'public'),
++  },
+   module: {
+     rules: [babel],
+   },
+ }
 ```
 
-## React
+Renaming the file is also relatively straight-forward:
+
+```diff file=webpack.config.js
+// webpack.config.js
+ module.exports = {
+-  entry: { main: './src/app.js' },
++  entry: { app: './src/app.js' },
+   output: {
+     path: path.resolve(__dirname, 'public'),
++    filename: '[name]-bundle.js', // will now emit app-bundle.js
+   },
+   module: {
+     rules: [babel],
+   },
+ }
+```
+
+We can also introduce "automagic" file extension resolution, so that when we `import` files in our code we can omit the file extension:
+
+```diff file=webpack.config.js
+// webpack.config.js
+ module.exports = {
+-  entry: { app: './src/app.js' },
++  entry: { app: './src/app' },
++  resolve: { extensions: ['.js'] },
+   output: {
+     path: path.resolve(__dirname, 'public'),
+     filename: '[name]-bundle.js',
+   },
+   module: {
+     rules: [babel],
+   },
+ }
+```
+
+## Configuring Webpack for React
 
 Install React and the Babel preset:
 
-``` bash
-npm i -D @babel/preset-react
+```bash
 npm i -S react react-dom
+npm i -D @babel/preset-react
 ```
 
 Add the new preset to the babel config:
 
-``` json
+```diff file=babel.config.js
 // babel.config.js
-module.exports = {
-  presets: [
-    '@babel/preset-env',
-    '@babel/preset-react',
-  ],
-}
+ module.exports = {
+   presets: [
+     '@babel/preset-env',
++    '@babel/preset-react',
+   ],
+ }
 ```
 
-A small change to the Webpack config:
+This should work as-is, but to use `.jsx` file extensions we need a couple of small changes:
 
-``` javascript
+```diff file=webpack.config.js
 // webpack.config.js
-const rules = [
-  {
-    test: /\.jsx?$/, // enables babel to work on .jsx extensions
-    exclude: /node_modules/,
-    use: 'babel-loader',
-  },
-]
+ const babel = [
+   {
+-    test: /\.js$/,
++    test: /\.jsx?$/,
+     exclude: /node_modules/,
+     use: 'babel-loader',
+   },
+ ]
 
-const entry = { main: 'src/app' }
-
-// this tells webpack how to automagically resolve file extensions
-const resolve = { extensions: ['.jsx', '.js'] }
-
-module.exports = {
-  entry,
-  resolve,
-  module: {
-    rules,
-  },
-}
+ module.exports = {
+   entry: { app: './src/app' },
++  resolve: { extensions: ['.js', '.jsx'] },
+   output: {
+     path: path.resolve(__dirname, 'public'),
+     filename: '[name]-bundle.js',
+   },
+   module: {
+     rules: [babel],
+   },
+ }
 ```
 
 A small React example:
 
-``` javascript
+```javascript file=src/app.jsx
 // src/app.jsx
 import React, { useState } from 'react'
 import ReactDOM from 'react-dom'
 
-const App = () => {
-  const [input, inputChange] = useState('Hello world!')
-
+function Hello() {
+  const [name, setName] = useState('world')
   return (
-    <div>
-      <h1>{input}</h1>
-      <input value={input} onChange={e => inputChange(e.target.value)} />
-    </div>
+    <>
+      <h3>Hello {name}!</h3>
+      <input value={name} onChange={e => setName(e.currentTarget.value)} />
+    </>
   )
 }
 
-ReactDOM.render(<App />, document.querySelector('body'))
+ReactDOM.render(<Hello />, document.querySelector('body'))
 ```
 
 Bundle it all up
 
-``` bash
-npx webpack --mode production
-less public/main.bundle.js
+```bash
+npx webpack -p
+less public/app-bundle.js
 ```
 
----
+# Importing CSS
 
-### TODO
-* more recipes?
-* webpack-dev-server/middleware
-* html-webpack-plugin
-* babel-node and compiling for node 
-* vendor bundle splitting
-* css modules
-* postcss
-* babel-plugin-lodash
-* flow
-* typescript
+A popular trick with Webpack is to import `.css` files from your `.js` files. By default, this will bundle it inside the `.js` bundle, but we can use [`MiniCssExtractPlugin`](https://github.com/webpack-contrib/mini-css-extract-plugin) to extract the CSS into it's own file.
+
+```bash
+npm i -D css-loader mini-css-extract-plugin
+```
+
+```diff file=webpack.config.js
+// webpack.config.js
++const MiniCssExtractPlugin = require('mini-css-extract-plugin')
++
++const css = {
++  test: /\.css$/,
++  use: [MiniCssExtractPlugin.loader, 'css-loader'],
++}
+ // ...
+ module.exports = {
+   entry: { app: './src/app' },
+   resolve: { extensions: ['.js', '.jsx'] },
+   output: {
+     path: path.resolve(__dirname, 'public'),
+     filename: '[name]-bundle.js',
+   },
+   module: {
+-    rules: [babel],
++    rules: [babel, css],
+   },
++  plugins: [
++    new MiniCssExtractPlugin({
++      filename: '[name]-bundle.css',
++    }),
++  ],
+ }
+```
+
+# Vendor Bundles
+
+we can split our main bundle into separate files, such that one file contains the our application code, and the other is the dependencies:
+
+```diff file=webpack.config.js
+// webpack.config.js
+ module.exports = {
+   // ...
++  optimization: {
++    splitChunks: {
++      cacheGroups: {
++        vendor: {
++          test: /[\\/]node_modules[\\/]()[\\/]/,
++          name: 'vendor',
++          chunks: 'all',
++        },
++      },
++    },
++  },
+ }
+```
+
+this should now generate a `vendor-bundle.js` file, as well as our, now smaller, `app-bundle.js`.
+
+# Generating an HTML file
+
+Now that you have some CSS and JS files, wouldn't it be nice to generate an HTML file to tie them together? [`html-webpack-plugin`](https://webpack.js.org/plugins/html-webpack-plugin/) does just that:
+
+```bash
+npm i -D html-webpack-plugin
+```
+
+```diff file=webpack.config.js
+// webpack.config.js
++const HtmlWebpackPlugin = require('html-webpack-plugin')
+
+ module.exports = {
+   // ...
+   plugins: [
++    new HtmlWebpackPlugin({
++      title: 'hello world',
++    }),
+     new MiniCssExtractPlugin({
+       filename: '[name]-bundle.css',
+     }),
+   ],
+ }
+```
+
+The plugin offers several [options](https://github.com/jantimon/html-webpack-plugin#options) to tune how the html file is generated, as well as templating in various formats. I personally like use it with [`html-webpack-template`](https://github.com/jaketrent/html-webpack-template) which is basically just a big `.ejs` file you can configure.
+
+# Easy cache-busting
+
+since we now have a generated html file dynamically creating `<script>` and `<link>` tags based on our build, it's also very easy to add hashes into the filename, so that when the build changes, a new html file is generated pointing to different files:
+
+```diff file=webpack.config.js
+// webpack.config.js
+ module.exports = {
+   // ...
+   output: {
+     path: path.resolve(__dirname, 'public'),
+-    filename: '[name]-bundle.js',
++    filename: '[name]-[contentHash:8].js',
+   },
+   // ...
+   plugins: [
+     new MiniCssExtractPlugin({
+-      filename: '[name]-bundle.css',
++      filename: '[name]-[contentHash:8].css',
+     }),
+   ]
+ }
+```
+
+# TypeScript
+
+It's never too late or early to introduce type checking into your JavaScript project!
+
+You can run TypeScript standalone to transform your code, but it turns out when compiling it's faster to let Babel just strip them, which is great since we were already using it.
+
+```bash
+npm i -D typescript @babel/preset-typescript
+```
+
+TypeScript has a generator for it's configuration, via `npx typescript --init`, which works great _if_ you're using it to compile as well, but we're using Babel for that. Here's the configuration that has worked best for me:
+
+```json5 file=tsconfig.json
+// tsconfig.json
+{
+  compilerOptions: {
+    target: 'ESNEXT',
+    module: 'none',
+    allowJs: true,
+    checkJs: true, // perhaps controversial, and definitely not required
+    jsx: 'preserve',
+    rootDir: './src',
+    noEmit: true,
+    strict: true, // also not required but I don't see the point in using TS without it
+    moduleResolution: 'node',
+    esModuleInterop: true,
+    skipLibCheck: true,
+    forceConsistentCasingInFileNames: true,
+  },
+  exclude: ['public', 'dist'],
+}
+```
+
+Make sure to add the TypeScript preset to the Babel config:
+
+```javascript file=babel.config.js highlight=6
+// babel.config.js
+module.exports = {
+  presets: ['@babel/preset-env', '@babel/preset-react', '@babel/preset-typescript'],
+}
+```
+
+We also need to add `.ts` and `.tsx` extensions to our Webpack config:
+
+```javascript file=webpack.config.js highlight=3,9
+// webpack.config.js
+const babel = {
+  test: /\.[tj]sx?$/,
+  exclude: /node_modules/,
+  use: 'babel-loader',
+}
+
+module.exports = {
+  resolve: { extensions: ['.ts', '.tsx', '.js', '.jsx'] },
+  // ...
+}
+```
+
+Now that we have type checking configured, we can install types for each package via `npm i -D @types/...` _or_ we can use `npx typesync` to install them for us. Even better yet, we can automatically install them with a `package.json` hook:
+
+```bash
+npm i -D typesync
+```
+
+```json5 file=package.json
+// package.json
+{
+  scripts: {
+    postinstall: 'typesync',
+  },
+}
+```
+
+# Linting
+
+Linters are tools to help catch errors besides type mismatches, as well as enforce stylistic/formatting preferences in your code.
+
+eslint includes tons of rules, as well as plugins to add more rules, as well as presets of pre-configured groups of rules.
+
+```bash
+npx eslint --init
+```
+
+This is a great way to get started, it will run an interactive "wizard" that asks a few questions, installs dependencies, and creates a config file for you:
+
+But instead of the wizard, I'm going to set up eslint manually for React with a few plugins and rules.
+
+```bash
+npm i -D eslint{,-plugin-{import,jsx-a11y,react{,-hooks}}}
+```
+
+```javascript file=.eslintrc.js
+// .eslintrc.js
+const extensions = ['.js', '.jsx']
+module.exports = {
+  env: {
+    node: ['current'],
+    browser: true,
+  },
+  extends: [
+    'eslint:recommended',
+    'plugin:import/recommended',
+    'plugin:react/recommended',
+    'plugin:jsx-a11y/recommended',
+    'plugin:react-hooks/recommended',
+  ],
+  plugins: ['import', 'react', 'jsx-a11y', 'react-hooks'],
+  settings: {
+    'import/extensions': extensions,
+    'import/resolver': { node: { extensions } },
+  },
+  rules: {
+    // all your custom rules and overrides here
+    semi: ['warn', 'never'],
+    'no-unexpected-multiline': 'error',
+    quotes: ['warn', 'single'],
+    'arrow-parens': ['warn', 'as-needed'],
+  },
+}
+```
+
+If you're not using TypeScript, you should use the Babel parser and add it to the eslint config:
+
+```bash
+npm i -D @babel/eslint-parser
+```
+
+```javascript file=.eslintrc.js
+// .eslintrc.js
+module.exports = {
+  parser: '@babel/eslint-parser',
+  // ...
+}
+```
+
+otherwise you'll want to add the TypeScript parser and plugin as well as some TS-specific rules:
+
+```bash
+npm i -D @typescript-eslint/{parser,eslint-plugin}
+```
+
+And add them to the configuration:
+
+```javascript file=.eslintrc.js
+// .eslintrc.js
+const extensions = ['.ts', '.tsx', '.js', '.jsx']
+module.exports = {
+  parser: '@typescript-eslint/parser',
+  extends: [
+    // ...
+    'plugin:@typescript-eslint/recommended',
+    'plugin:@typescript-eslint/recommended-requiring-type-checking',
+  ],
+  plugins: [
+    // ...
+    '@typescript-eslint',
+  ],
+  parserOptions: {
+    project: './tsconfig.json',
+  },
+  settings: {
+    // ...
+    'import/parsers': { '@typescript-eslint/parser': extensions },
+  },
+}
+```
+
+## Linting CSS
+
+You can also bring the power of linting to your CSS using `stylelint`!
+
+```bash
+npm i -D stylelint{,-config-standard}
+```
+
+```javascript file=stylelint.config.js
+// stylelint.config.js
+module.exports = {
+  extends: 'stylelint-config-standard',
+}
+```
+
+# Transforming CSS
+
+Just like Babel does transformations over JavaScript files, [PostCSS](https://postcss.org) does for CSS files. Alone, also in the same way as Babel, PostCSS doesn't actually do anything, it only provides a way to parse and transform files via plugins. There are tons of individual specialized plugins for PostCSS, you can basically build your own preprocessor that does the same things as other popular tools like Sass, Less, and Stylus, with or without other features you do or don't want.
+
+We first need the main PostCSS package and then a loader for Webpack for it to process them. After that you can add whatever you like. I suggest [`postcss-import`](https://github.com/postcss/postcss-import) to help with CSS `@imports` and [`postcss-preset-env`](https://preset-env.cssdb.org/) for adding [autoprefixer]() as well as several other "future" features, and [cssnano](https://cssnano.co) for minifying. There are still [so many more on npm worth checking out](https://www.npmjs.com/search?q=keywords:postcss-plugin).
+
+```bash
+npm i -D postcss{,-loader,-import,-preset-env} cssnano
+```
+
+```javascript file=webpack.config.js highlight=6-7
+// webpack.config.js
+const css = {
+  test: /\.css$/,
+  use: [
+    MiniCssExtractPlugin.loader,
+    { loader: 'css-loader', options: { importLoaders: 1 } },
+    'postcss-loader',
+  ],
+}
+```
+
+And a configuration file for PostCSS:
+
+```javascript file=postcss.config.js
+// postcss.config.js
+module.exports = ({ env }) => ({
+  plugins: {
+    'postcss-import': {},
+    'postcss-preset-env': { stage: 0 },
+    cssnano: env === 'production' ? { preset: 'default' } : false,
+  },
+})
+```
+
+The [`postcss-loader` docs](https://www.webpackjs.com/loaders/postcss-loader/) have a lot more info on the cool things you can do with PostCSS and Webpack.
+
+If you're specifically interested in the low-noise Stylus-like syntax, [`sugarss`](https://github.com/postcss/sugarss) provides a great alternative.
+
+Also note, that `postcss-preset-env`, as well as `babel-preset-env`, both transform your code based on your [`browserslist` definition](https://github.com/browserslist/browserslist#browserslist-).
+
+# Task running
+
+We have several tools set up to do different tasks, and we can save the different commands for working with them in the `package.json` for easy re-use.
+
+```json5 file=package.json
+// package.json
+{
+  scripts: {
+    postinstall: 'typesync',
+    'watch:client': 'webpack -d --watch',
+    'build:client': 'NODE_ENV=production webpack -p',
+    typecheck: 'tsc -p .',
+    'lint:js': 'eslint --ext=.ts,.tsx,.js,.jsx --ignore-path=.gitignore .',
+    'lint:css': "stylelint 'src/**/*.css'",
+  },
+}
+```
+
+Now that we've grouped tasks into specialized scripts we can easily execute them together with `npm-run-all`:
+
+```bash
+npm i npm-run-all
+```
+
+`npm-run-all` provides two (or 4 if you count shorthands) ways to run scripts defined in your `package.json`: sequentially (one after the other) with `npm-run-all -s` (or `run-s`), or in parallel with `npm-run-all -p` (or `run-p`). It also provides a way to "glob" tasks with similar names, for example we can run all scripts starting with "lint:"
+
+```json5 file=package.json
+// package.json
+{
+  scripts: {
+    // ...
+    start: 'run-p watch:client',
+    lint: "run-p -c 'lint:*'",
+    test: 'run-p -c lint typecheck',
+  },
+}
+```
+
+- the quotes around `lint:*` are making sure that `*` is passed literally to the command rather than being expanded by the shell as a file list
+- The `-c` switch passed to `run-p` makes sure that the process `c`ontinues even if one task fails.
+
+We can also force Webpack to restart if any of the configuration is changed using `nodemon`:
+
+```bash
+npm i nodemon
+```
+
+// package.json
+{
+"scripts": {
+"watch:client": "nodemon -w '\*.config.js' -x 'webpack -d --watch'",
+// ...
+}
+}
+
+```
+
+```
