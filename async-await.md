@@ -16,16 +16,16 @@ When Node.js was first introduced, it shipped a pattern of dealing with I/O that
 var fs = require('fs')
 
 var file = './fileName'
-fs.writeFile(file, JSON.stringify({ n: Math.random() }), 'utf8', function (e) {
-  if (e) {
-    throw new Error('error writing file:', e)
+fs.writeFile(file, JSON.stringify({ n: Math.random() }), 'utf8', function (error) {
+  if (error) {
+    throw new Error({ message: 'error writing file', error})
   }
   console.log('done writing')
 })
 
-fs.readFile(file, 'utf8', function (e, content) {
-  if (e) {
-    throw new Error('error reading file:', e)
+fs.readFile(file, 'utf8', function (error, content) {
+  if (error) {
+    throw new Error({ message: 'error reading file', error})
   }
   console.log(content)
 })
@@ -40,14 +40,14 @@ var fs = require('fs')
 
 var file = './fileName'
 
-fs.writeFile(file, JSON.stringify({ n: Math.random() }), 'utf8', function (e) {
-  if (e) {
-    throw new Error('error writing file:', e)
+fs.writeFile(file, JSON.stringify({ n: Math.random() }), 'utf8', function (error) {
+  if (error) {
+    throw new Error({ message: 'error writing file', error })
   }
   console.log('done writing')
-  fs.readFile(file, 'utf8', function (e, content) {
-    if (e) {
-      throw new Error('error reading file:', e)
+  fs.readFile(file, 'utf8', function (error, content) {
+    if (error) {
+      throw new Error({ message: 'error reading file', error })
     }
     console.log(content)
   })
@@ -70,10 +70,10 @@ const writeFile = promisify(fs.writeFile)
 const readFile = promisify(fs.readFile)
 const data = { n: Math.random() }
 writeFile(file, JSON.stringify(data), 'utf8')
-  .catch(e => throw new Error('error writing file:', e))
+  .catch(error => throw new Error({ message: 'error writing file', error }))
   .then(() => console.log('done writing'))
   .then(() => readFile(file, 'utf8'))
-  .catch(e => throw new Error('error reading file:', e))
+  .catch(error => throw new Error({ message: 'error reading file', error }))
   .then(content => console.log(content))
 ```
 
@@ -92,13 +92,13 @@ const readFile = promisify(fs.readFile)
 const statFile = promisify(fs.stat)
 
 writeFile(file, JSON.stringify({ n: Math.random() }), 'utf8')
-  .catch(e => throw new Error('error writing file:', e))
+  .catch(error => throw new Error({ message: 'error writing file', error }))
   .then(() => console.log('done writing'))
   .then(() => statFile(file))
-  .catch(e => throw new Error('could not stat file:', e))
+  .catch(error => throw new Error({ message: 'could not stat file', error }))
   .then(stats => console.log('file is', stats.size, 'bytes'))
   .then(() => readFile(file, 'utf8'))
-  .catch(e => throw new Error('error reading file:', e))
+  .catch(error => throw new Error({ message: 'error reading file', error }))
   .then(contents => console.log(contents))
 ```
 
@@ -137,7 +137,7 @@ const statFile = promisify(fs.stat)
 const file = './fileName'
 const data = { n: Math.random() }
 
-const writeFiles = async (file, data) => {
+async function writeFiles(file, data) {
   await writeFile(file, JSON.stringify(data), 'utf8')
   const stats = await statFile(file)
   const size = stats.size
@@ -180,42 +180,41 @@ To access previous values in the promise chain you have to create closures over 
 There are two ways to deal with error handling in async/await, one involves wrapping chunks if your code in try/catch blocks:
 
 ```javascript
-const writeFiles = async (file, data) => {
+async funcion writeFiles(file, data) {
   try {
     await writeFile(file, JSON.stringify(data), 'utf8')
-  } catch (e) {
-    throw new Error('error writing file:', e)
+  } catch (error) {
+    throw new Error({ message: 'error writing file', error })
   }
   console.log('done writing')
   try {
     const stats = await statFile(file)
-  } catch (e) {
-    throw new Error('could not stat file:', e)
+  } catch (error) {
+    throw new Error({ message: 'could not stat file', error })
   }
   const size = stats.size
   try {
     const contents = await readFile(file, 'utf8')
-  } catch (e) {
-    throw new Error('error reading file:', e)
+  } catch (error) {
+    throw new Error({ message: 'error reading file', error })
   }
-  console.log({ file, size, contents })
+  return { file, size, contents }
 }
 ```
 
 But if you prefer you can still use `.catch()`:
 
 ```javascript
-const writeFiles = async (file, data) => {
-  await writeFile(file, JSON.stringify(data), 'utf8').catch(
-    e => throw new Error('error writing file:', e),
-  )
+async function writeFiles(file, data) {
+  await writeFile(file, JSON.stringify(data), 'utf8')
+    .catch(error => throw new Error({ message: 'error writing file', error }))
   console.log('done writing')
-  const stats = await statFile(file).catch(e => throw new Error('could not stat file:', e))
+  const stats = await statFile(file)
+    .catch(error => throw new Error({ message: 'could not stat file', error }))
   const size = stats.size
-  const contents = await readFile(file, 'utf8').catch(
-    e => throw new Error('error reading file:', e),
-  )
-  console.log({ file, size, contents })
+  const contents = await readFile(file, 'utf8')
+    .catch(error => throw new Error({ message: 'error reading file', error }))
+  return { file, size, contents }
 }
 ```
 
