@@ -59,9 +59,9 @@ npx webpack -p # -p is a shorthand for a few different production flags
 less dist/main.js
 ```
 
-Webpack starts with it's given entrypoint[s], and looks for any `import` or `require` tokens that point to other files or packages, and then recursively works through those files to build up a dependency tree it calls a manifest
+Webpack starts with it's given *entrypoint*[s], and parses for any `import` or `require` tokens that point to other files or packages, and then recursively works through those files to build up a dependency tree it calls a *manifest*.
 
-These two commands alone can be very helpful on their own, and the Webpack cli has many options to alter it's behavior, you can read them with `npx webpack --help` or on [their website](https://webpack.js.org/api/cli/).
+These two commands alone can be very helpful on their own, and the Webpack CLI has many options to alter it's behavior, you can read them with `npx webpack --help` or on [their website](https://webpack.js.org/api/cli/).
 
 ## Babel
 
@@ -419,7 +419,11 @@ Make sure to add the TypeScript preset to the Babel config:
 ```javascript file=babel.config.js highlight=6
 // babel.config.js
 module.exports = {
-  presets: ['@babel/preset-env', '@babel/preset-react', '@babel/preset-typescript'],
+  presets: [
+    '@babel/preset-env',
+    '@babel/preset-react',
+    '@babel/preset-typescript'
+  ],
 }
 ```
 
@@ -445,12 +449,12 @@ Now that we have type checking configured, we can install types for each package
 npm i -D typesync
 ```
 
-```json5 file=package.json
+```json file=package.json
 // package.json
 {
-  scripts: {
-    postinstall: 'typesync',
-  },
+  "scripts": {
+    "postinstall": "typesync"
+  }
 }
 ```
 
@@ -466,10 +470,10 @@ npx eslint --init
 
 This is a great way to get started, it will run an interactive "wizard" that asks a few questions, installs dependencies, and creates a config file for you:
 
-But instead of the wizard, I'm going to set up eslint manually for React with a few plugins and rules.
+But instead of the wizard, let's set up eslint manually.
 
 ```bash
-npm i -D eslint{,-plugin-{import,jsx-a11y,react{,-hooks}}}
+npm i -D eslint
 ```
 
 ```javascript file=.eslintrc.js
@@ -483,21 +487,17 @@ module.exports = {
   extends: [
     'eslint:recommended',
     'plugin:import/recommended',
-    'plugin:react/recommended',
     'plugin:jsx-a11y/recommended',
+    'plugin:react/recommended',
     'plugin:react-hooks/recommended',
   ],
-  plugins: ['import', 'react', 'jsx-a11y', 'react-hooks'],
+  plugins: ['import', 'jsx-a11y', 'react', 'react-hooks'],
   settings: {
     'import/extensions': extensions,
     'import/resolver': { node: { extensions } },
   },
   rules: {
     // all your custom rules and overrides here
-    semi: ['warn', 'never'],
-    'no-unexpected-multiline': 'error',
-    quotes: ['warn', 'single'],
-    'arrow-parens': ['warn', 'as-needed'],
   },
 }
 ```
@@ -608,17 +608,17 @@ Also note, that `postcss-preset-env`, as well as `babel-preset-env`, both transf
 
 We have several tools set up to do different tasks, and we can save the different commands for working with them in the `package.json` for easy re-use.
 
-```json5 file=package.json
+```json file=package.json
 // package.json
 {
-  scripts: {
-    postinstall: 'typesync',
-    'watch:client': 'webpack -d --watch',
-    'build:client': 'NODE_ENV=production webpack -p',
-    typecheck: 'tsc -p .',
-    'lint:js': 'eslint --ext=.ts,.tsx,.js,.jsx --ignore-path=.gitignore .',
-    'lint:css': "stylelint 'src/**/*.css'",
-  },
+  "scripts": {
+    "postinstall": "typesync",
+    "watch:client": "webpack -d --watch",
+    "build:client": "NODE_ENV=production webpack -p",
+    "typecheck": "tsc -p .",
+    "lint:js": "eslint --ext=.ts,.tsx,.js,.jsx --ignore-path=.gitignore .",
+    "lint:css": "stylelint 'src/**/*.css'"
+  }
 }
 ```
 
@@ -630,16 +630,13 @@ npm i npm-run-all
 
 `npm-run-all` provides two (or 4 if you count shorthands) ways to run scripts defined in your `package.json`: sequentially (one after the other) with `npm-run-all -s` (or `run-s`), or in parallel with `npm-run-all -p` (or `run-p`). It also provides a way to "glob" tasks with similar names, for example we can run all scripts starting with "lint:"
 
-```json5 file=package.json
+```diff file=package.json
 // package.json
-{
-  scripts: {
-    // ...
-    start: 'run-p watch:client',
-    lint: "run-p -c 'lint:*'",
-    test: 'run-p -c lint typecheck',
-  },
-}
+   "scripts": {
++    "start": "run-p watch:client",
++    "lint": "run-p -c 'lint:*'",
++    "test": "run-p -c lint typecheck"
+   }
 ```
 
 - the quotes around `lint:*` are making sure that `*` is passed literally to the command rather than being expanded by the shell as a file list
@@ -651,14 +648,9 @@ We can also force Webpack to restart if any of the configuration is changed usin
 npm i nodemon
 ```
 
+```diff file=package.json
 // package.json
-{
-"scripts": {
-"watch:client": "nodemon -w '\*.config.js' -x 'webpack -d --watch'",
-// ...
-}
-}
-
-```
-
+   "scripts": {
++    "watch:client": "nodemon -w '*.config.js' -x 'webpack -d --watch'"
+   }
 ```
