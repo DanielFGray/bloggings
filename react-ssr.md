@@ -6,7 +6,7 @@ tags: [javascript, react]
 date: 2020-8-11
 ---
 
-server rendering in react is often seen as mystical and esoteric, let's shed some light on it
+Server rendering in React is often seen as mystical and esoteric, let's shed some light on it!
 
 # Getting Started
 
@@ -76,7 +76,7 @@ app.listen(PORT, () => {
 })
 ```
 
-combined with the configuration from my [babel-webpack](./babel-webpack) guide (copied below for completeness), you should have a way to generate static files from your client code, and now a way to serve them over http.
+Combined with the configuration from my [babel-webpack](./babel-webpack) guide (copied below for completeness), you should have a way to generate static files from your client code, and now a way to serve them over http.
 
 ```javascript
 // webpack.config.js
@@ -181,7 +181,7 @@ npm i -D @babel/node
 
 then try running the server with `PORT=8000 npx babel-node -x .js,.jsx ./src/index.js`
 
-# again but with assets
+# Again, but with assets
 
 Currently our response isn't including any script or style tags. The best way I know how to solve this, is to ask webpack for [the list of assets it created](https://webpack.js.org/concepts/manifest/), which the [`webpackManifestPlugin`](https://github.com/danethurber/webpack-manifest-plugin) can help us with:
 
@@ -267,7 +267,7 @@ in order for react to attach event handlers to the existing dom nodes, we have a
 +ReactDOM.hydrate(<Init/>, document.querySelector('#root'))
 ```
 
-# the rest of the fiddlings
+# The rest of the fiddlings
 
 We can add some integration with react-router and send status codes and redirects at the server level:
 
