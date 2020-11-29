@@ -419,11 +419,7 @@ Make sure to add the TypeScript preset to the Babel config:
 ```javascript file=babel.config.js highlight=6
 // babel.config.js
 module.exports = {
-  presets: [
-    '@babel/preset-env',
-    '@babel/preset-react',
-    '@babel/preset-typescript'
-  ],
+  presets: ['@babel/preset-env', '@babel/preset-react', '@babel/preset-typescript'],
 }
 ```
 

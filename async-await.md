@@ -18,14 +18,14 @@ var fs = require('fs')
 var file = './fileName'
 fs.writeFile(file, JSON.stringify({ n: Math.random() }), 'utf8', function (error) {
   if (error) {
-    throw new Error({ message: 'error writing file', error})
+    throw new Error({ message: 'error writing file', error })
   }
   console.log('done writing')
 })
 
 fs.readFile(file, 'utf8', function (error, content) {
   if (error) {
-    throw new Error({ message: 'error reading file', error})
+    throw new Error({ message: 'error reading file', error })
   }
   console.log(content)
 })
