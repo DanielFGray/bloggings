@@ -3,7 +3,7 @@ layout: post
 title: 'Server-Side Rendering with React'
 category: computers
 tags: [javascript, react]
-date: 2020-8-11
+date: 2020-08-11
 ---
 
 Server rendering in React is often seen as mystical and esoteric, let's shed some light on it!

@@ -3,7 +3,7 @@ layout: post
 title: 'Bash Scripting'
 category: computers
 tags: [linux, bash, programming, unfinished]
-date: 2017/2/15
+date: 2017-02-15
 ---
 
 Bash is perhaps one of the hardest languages to learn how to script with, simply for the fact there's so much bad information out there.  

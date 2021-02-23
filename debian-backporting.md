@@ -3,7 +3,7 @@ layout: post
 title: 'Backporting packages in Debian'
 category: computers
 tags: [debian, linux]
-date: 2013/10/22
+date: 2013-10-22
 ---
 
 Are you anxious for a new version of a particular package, and don't want to wait for someone else to submit it to backports?

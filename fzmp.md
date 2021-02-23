@@ -3,7 +3,7 @@ layout: post
 title: 'Fuzzy searching for MPD in Bash'
 category: computers
 tags: [programming, linux, bash, mpd, fzf]
-date: 2014/11/02
+date: 2014-11-02
 ---
 
 I recently came across [fzf](https://github.com/junegunn/fzf), which is an interactive line filter. By default `fzf` will fuzzy search recursively through file names in the current directory, but it also filters through stdin.

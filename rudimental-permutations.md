@@ -3,7 +3,7 @@ layout: post
 title: 'On permutations of rudiments'
 category: music
 tags: [drums, rudiments, permutations]
-date: 2015/12/14
+date: 2015-12-14
 ---
 
 This post is still a work in progress, so bare with me please. If you spot any errors or have something you want to add, feel free to leave a comment below.

@@ -3,7 +3,7 @@ layout: post
 title: 'Functional Programming: currying and partial application'
 category: computers
 tags: [programming, javascript, fp]
-date: 2017/08/23
+date: 2017-08-23
 ---
 
 An explanation of currying and partial application using JavaScript

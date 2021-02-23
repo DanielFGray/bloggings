@@ -3,7 +3,7 @@ layout: post
 title: 'Functional Programming: a small introduction'
 category: computers
 tags: [programming, javascript, fp]
-date: 2017/1/10
+date: 2017-01-10
 ---
 
 It seems there's some confusion on why you might use functional programming methods like map/reduce/filter, and so I thought I'd write something to try and explain why I think they're useful and interesting.

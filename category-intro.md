@@ -3,7 +3,7 @@ layout: post
 title: 'An Attempt At Explaining Category Theory '
 category: computers
 tags: [programming, javascript, fp]
-date: 2018-1-4
+date: 2018-01-04
 ---
 
 This is mostly a personal notebook of what I think I have learned. I make no guarantee about the accuracy of anything said here, I would appreciate any corrections or feedback on anything [I've ever] posted.

@@ -3,7 +3,7 @@ layout: post
 title: 'How I Made My Own Static-Site Generator'
 category: computers
 tags: [programming, javascript, frp, nodejs]
-date: 2017/06/18
+date: 2017-06-18
 ---
 
 I had a fun time making my own static-site generator for a blog, and I thought this could serve as a practical introduction to Functional Reactive Programming (FRP).

@@ -3,7 +3,7 @@ layout: post
 title: 'Why GitLab'
 category: computers
 tags: [gitlab, github]
-date: 2017/2/16
+date: 2017-02-16
 ---
 
 Occasionally people ask me why I use GitLab instead of GitHub.

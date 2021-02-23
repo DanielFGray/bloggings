@@ -3,7 +3,7 @@ layout: post
 title: 'Why Use React?'
 category: computers
 tags: [react, javascript, programming]
-date: 2017/4/17
+date: 2017-04-17
 ---
 
 Introductions are hard, so I'm just gonna jump right into this.

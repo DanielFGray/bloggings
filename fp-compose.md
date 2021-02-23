@@ -3,7 +3,7 @@ layout: post
 title: 'Functional Programming: functional composition'
 category: computers
 tags: [programming, javascript, fp]
-date: 2017/09/16
+date: 2017-09-16
 ---
 
 Creating functions like Lego blocks

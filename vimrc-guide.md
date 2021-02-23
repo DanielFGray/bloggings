@@ -3,7 +3,7 @@ layout: post
 title: Vim beginner's customization guide
 category: computers
 tags: [vim]
-date: 2015/08/02
+date: 2015-08-02
 ---
 
 This article is for those who've been using Vim for a little while and have started to grasp modal editing and the powers of Vim, and now want to start customizing it. If you're completely new to Vim, I have another post describing some of the basic of learning Vim [here](/computers/vim-guide) but there are dozens of them on the internet, and Vim ships with `vimtutor` as well which is a great place to start.

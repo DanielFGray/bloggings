@@ -3,7 +3,7 @@ layout: post
 title: 'Learning Vim'
 category: computers
 tags: [vim, unfinished]
-date: 2017/2/2
+date: 2017-02-02
 ---
 
 A brief (and somewhat complete) history: In the beginning, the UNIX standard editor was `ed`, created by Ken Thompson in 1969. `ed` is a very powerful, very terse, command line interface for editing text, but user-friendliness is not one of it's strengths. In 1976 Bill Joy came along on his [ADM-3A](https://en.wikipedia.org/wiki/ADM-3A) and extended `ed` to become `ex`, and then a couple years later made a visual interface and called it `vi`. Later on, around 1988, Bram Moolenar took `Vi` and improved it with a lot more features, and around 1991 released it and called it `Vim`.

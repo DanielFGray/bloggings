@@ -1,9 +1,9 @@
 ---
 layout: post
-title: 'Parsing Bash Config Files'
+title: "Parsing Bash Config Files"
 category: computers
 tags: [linux, bash, programming]
-date: 2017/2/21
+date: 2017-02-21
 ---
 
 Many times a script is written that needs extra/persistent configuration from the user. In most languages this is no big deal, you just import your json/yaml/toml parser and you're good to go. The common thing to do for many bash scripts that require configuration is to ask the user to put another actual bash script containing variable declarations in the file:

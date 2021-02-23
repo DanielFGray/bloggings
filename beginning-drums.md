@@ -3,7 +3,7 @@ layout: post
 title: 'Beginning Drums'
 category: music
 tags: [drums, rudiments, unfinished]
-date: 2016/10/26
+date: 2016-10-26
 ---
 
 - TODO: Playing drums is great because you can do it anywhere without sticks.

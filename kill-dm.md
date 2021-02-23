@@ -3,7 +3,7 @@ layout: post
 title: 'Killing the Display Manager'
 category: computers
 tags: [linux, fzf]
-date: 2016/09/29
+date: 2016-09-29
 ---
 
 Display managers like LightDM and SDDM come standard with many Linux distros, and I personally find them useless. I'd like to share with you how to get rid of them and gain a bit of control over how X is launched, and take back a few precious megabytes of RAM.
