@@ -92,9 +92,9 @@ Once you're comfortable with the mechanics, try playing along to a metronome. If
 "What is this rudiment thing you keep saying?" you might think.
 
 > rudiment [**roo**-d*uh*-m*uh* nt] ><br/>Usually, rudiments
-> <br/>the elements or first principles of a subject: the rudiments of grammar
-> <br/>1540-50; < Latin _rudīmentum_ early training, first experience, initial stage, equivalent to _rudi(s)_ unformed, rough + _-mentum_ -ment (_-ī-_ for _-i-_ after verbal derivatives)
-> <br/>_Source: dictionary.com_
+> the elements or first principles of a subject: the rudiments of grammar
+> 1540-50; < Latin _rudīmentum_ early training, first experience, initial stage, equivalent to _rudi(s)_ unformed, rough + _-mentum_ -ment (_-ī-_ for _-i-_ after verbal derivatives)
+*Source: dictionary.com*
 
 Simply put, they are the building blocks of drumming. You could think of rudiments as words. Each word is made of letters, in this case, we've used only two letters.
 
